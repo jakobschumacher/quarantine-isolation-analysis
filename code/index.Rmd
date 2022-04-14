@@ -10,8 +10,6 @@ output:
     theme: lumen
     code_folding: hide
     number_sections: true
-    fig_width: 7
-    fig_height: 6
     fig_caption: true
   bookdown::html_document2:
     df_print: paged
@@ -19,6 +17,7 @@ output:
     keep_tex: yes
 params:
   completerun: FALSE
+  dataversion: "2022-04-12"
 ---
 ![](https://www.horizont.net/news/media/32/Das-neue-Berlin-Logo-315209.jpeg){width=30%}
 ![](https://www.ultrasoundsymposium.org/wp-content/uploads/2017/08/fhg-1.gif){width=30%}
@@ -31,7 +30,7 @@ The following R-Script calculates all the necessary numbers and figures for a pu
 
 ## What you need to reproduce the script
 - All necessary files 
-- R, Rstudio and the packages (see setup chunk)
+- R, Rstudio and the packages. Renv is used with this project. See .Rprofile for used packages
 - Maybe you need to adjust the folder and the root dir (see setup chunk)  
 - Install the necessary fonts (see setup chunk)
 
@@ -39,27 +38,7 @@ The following R-Script calculates all the necessary numbers and figures for a pu
 
 ## About Reinickendorf
 
-# Methods
-
-## Load packages
-```{r setup packages}
-pacman::p_load(here,         # File locator
-               tidyverse,    # data management + ggplot2 graphics
-               ggthemes,     # for additional theme of ggplot
-               janitor,      # additional cleaning
-               lubridate,    # working with dates
-               vistime,      # Timeline graph
-               DescTools,    # %overlaps% function 
-               mmtable2,     # Making nice tables
-               knitr,        # Output
-               pander,       # Produce nice tables  
-               RColorBrewer, # Colours in graphs
-               tidyquant,    # Moving averages
-               gridExtra,    # Several plots into one
-               grid          # Text abilities of ggplot
-               )
-```
-
+# Setup
 
 ## Setting options for knitr, ggplot, fonts 
 ```{r setup output options}
@@ -74,7 +53,6 @@ knitr::opts_knit$set(eval.after = 'fig.cap')
 
 # Adjust the big mark for large numbers
 knitr::knit_hooks$set(inline = function(x) { prettyNum(x, big.mark=" ") })
-
 
 # Setting the ggplot theme
 ester_theme <- function() {
@@ -131,13 +109,19 @@ wrong_id2 = "#NV"
 
 ## Population data from Berlin Reinickendorf, Germany
 ```{r population data, eval = params$completerun}
-demographiedaten <-   read_delim("data/EWR202012E_Matrix.csv", delim = ";", show_col_types = FALSE) %>% 
+demographiedaten <- read_delim("data/EWR202012E_Matrix.csv", delim = ";", show_col_types = FALSE) %>% 
   filter(BEZ == "12")  %>% 
   summarise('0 to 6' = sum(E_E00_01 + E_E01_02  + E_E02_03  + E_E03_05  + E_E05_06  +E_E06_07),
             '7 to 17' = sum(E_E07_08 + E_E08_10  + E_E10_12 + E_E12_14 + E_E14_15  + E_E15_18),
             '18 to 64' = sum(E_E18U25 + E_E25U55 + E_E55U65),
             '65 to 110' = sum(E_E65U80 + E_E80U110)) %>% 
   pivot_longer(cols = everything())
+
+demographiedaten_total <- read_delim("data/EWR202012E_Matrix.csv", delim = ";", show_col_types = FALSE) %>% 
+  filter(BEZ == "12") %>% 
+  summarise('total' = sum(E_E)) %>% 
+  pull()
+
 ```
 
 
@@ -558,26 +542,47 @@ df <- df %>%
   left_join(zeiten, by = c("AbsonderungVon" = "dates"))
 ```
 
+
+```{r}
+# df %>% 
+#   filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+#   mutate(Q_Duration_number = str_split(Q_Duration_shortvalue, " ", simplify = TRUE)[1]) %>% 
+#   mutate(Q_Duration_number = as.numeric(Q_Duration_number)) %>% 
+#   filter(Q_Duration_number == 14) %>% 
+#   mutate(Q_timeliness = dauer - Q_Duration_number) %>% 
+#   group_by(Meldewoche) %>% 
+#   summarise(timeliniess = mean(Q_timeliness)) %>% 
+#   ggplot(aes(Meldewoche, timeliniess)) +
+#   ester_theme() +
+#   geom_col()
+```
+
+
+
 ## Save datasets
 ```{r saving_datasets, eval = params$completerun}
 saveRDS(df, paste0("data/", today(), "-df.rdata"))
 saveRDS(methodslist, paste0("data/", today(), "-methodslist.rdata"))
+saveRDS(resultslist, paste0("data/", today(), "-resultslist.rdata"))
 saveRDS(demographiedaten, paste0("data/", today(), "-demographiedaten.rdata"))
 saveRDS(zeiten, paste0("data/", today(), "-zeiten.rdata"))
 
 # rm(list=ls())
 ```
 
+
+
 # Results
 ```{r Results}
 # Hier wird die gespeicherte Tabelle eingelesen
-df <- readRDS(paste0("data/2022-04-12-df.rdata")) %>% ungroup()
-methodslist <- readRDS(paste0("data/2022-04-12-methodslist.rdata"))
-demographiedaten <- readRDS(paste0("data/2022-04-12-demographiedaten.rdata"))
-zeiten <- readRDS(paste0("data/2022-04-12-zeiten.rdata"))
+df <- readRDS(paste0("data/", params$dataversion, "-df.rdata")) %>% ungroup()
+methodslist <- readRDS(paste0("data/", params$dataversion, "-methodslist.rdata"))
+resultslist <- readRDS(paste0("data/", params$dataversion, "-resultslist.rdata"))
+demographiedaten <- readRDS(paste0("data/", params$dataversion, "-demographiedaten.rdata"))
+zeiten <- readRDS(paste0("data/", params$dataversion, "-zeiten.rdata"))
 ```
 
-## Calculate numbers and incidence
+## Numbers of quarantine and isolation
 ```{r N_and_incidence}
 # N quarantines
 resultslist$AnzahlQAgegroup <- df %>% filter(DatensatzKategorie == "Kontakt-COVID-19") %>% group_by(AgeGroup) %>% summarise(n = n()) %>% pull(n)
@@ -602,7 +607,18 @@ resultslist$incidence <- df %>%
   rename(N = value) %>% 
   mutate(incidence = round(100*n/N)) %>% 
   mutate(DatensatzKategorie = recode_factor(DatensatzKategorie, "COVID-19" = "isolation", "Kontakt-COVID-19" = "quarantine"))
+
+resultslist$incidence_total <- df %>% 
+    group_by(DatensatzKategorie) %>% 
+    summarise(n = n(), .groups = 'drop') %>% 
+    mutate(totalpopulation = demographiedaten_total) %>% 
+    mutate(incidence = round(100*n/totalpopulation)) 
+
+
 ```
+
+The local public health agency Reinickendorf ordered isolations for slightly less than 10\% and quarantines for a bit more than 15\% of the population. This amounts to XXX days per person. The local public health agency of Reinickendorf ordered roughly 1700 years of quarantine in total.
+
 
 
 ## Calculate time periods
@@ -758,7 +774,7 @@ p2 <- resultslist$incidence %>%
 
 p_gesamt <- grid.arrange(p1,p2)
 
-ggsave("graph/incidence.eps", p_gesamt)
+ggsave("graph/incidence.eps", p_gesamt, width = 7, height = 7)
 ```
 
 
@@ -1061,5 +1077,11 @@ summary(lm(as.numeric(dauer)~AgeGroup+Q_Duration, df %>% filter(DatensatzKategor
 ## Linear model of influence an isolation duration
 ```{r}
 summary(lm(as.numeric(dauer)~AgeGroup+I_Duration, df %>% filter(DatensatzKategorie == "COVID-19")))
+```
+
+
+## Session Info
+```{r}
+sessionInfo()
 ```
 
