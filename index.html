@@ -1847,49 +1847,39 @@ print(df %&gt;% filter(AnonID == &quot;ID015472&quot;))
 <div id="population-data-from-berlin-reinickendorf-germany" class="section level2" number="2.4">
 <h2><span class="header-section-number">2.4</span> Population data from
 Berlin Reinickendorf, Germany</h2>
-<pre class="r"><code>demographiedaten &lt;- read_delim(&quot;data/EWR202012E_Matrix.csv&quot;, delim = &quot;;&quot;, show_col_types = FALSE) %&gt;% 
+<pre class="r"><code>read_demographiedata &lt;- function(datafile = &quot;data/EWR202012E_Matrix.csv&quot;){
+    datafile %&gt;% 
+  read_delim(delim = &quot;;&quot;, show_col_types = FALSE) %&gt;% 
   filter(BEZ == &quot;12&quot;)  %&gt;% 
   summarise(&#39;0 to 6&#39; = sum(E_E00_01 + E_E01_02  + E_E02_03  + E_E03_05  + E_E05_06  +E_E06_07),
             &#39;7 to 17&#39; = sum(E_E07_08 + E_E08_10  + E_E10_12 + E_E12_14 + E_E14_15  + E_E15_18),
             &#39;18 to 64&#39; = sum(E_E18U25 + E_E25U55 + E_E55U65),
             &#39;65 to 110&#39; = sum(E_E65U80 + E_E80U110)) %&gt;% 
   pivot_longer(cols = everything())
+}
 
-demographiedaten_total &lt;- read_delim(&quot;data/EWR202012E_Matrix.csv&quot;, delim = &quot;;&quot;, show_col_types = FALSE) %&gt;% 
-  filter(BEZ == &quot;12&quot;) %&gt;% 
-  summarise(&#39;total&#39; = sum(E_E)) %&gt;% 
-  pull()</code></pre>
+demographiedata &lt;- read_demographiedata()</code></pre>
 </div>
 <div id="reading-and-tidying-the-dataset" class="section level2" number="2.5">
 <h2><span class="header-section-number">2.5</span> Reading and tidying
 the dataset</h2>
-<pre class="r"><code># reading in the date
-df &lt;- read_delim(&quot;data/absonderungslast_ohneNamen_altersgruppe2.csv&quot;, delim = &quot;,&quot;, show_col_types = FALSE)
-
-# Add RowID (this is needed for the purr::map function)
-df &lt;- df %&gt;% rowid_to_column()
-
-# Correct SurvNet mistake
-df &lt;- df %&gt;% rename(AbsonderungBis = AbsonderunBis)
-
-# Adjust date variables and calculate duration
-df &lt;- df %&gt;% 
+<pre class="r"><code>read_survnetdata &lt;- function(datafile =&quot;data/absonderungslast_ohneNamen_altersgruppe2.csv&quot;){
+  datafile %&gt;% 
+  read_delim(delim = &quot;,&quot;, show_col_types = FALSE)  %&gt;%  # reading in the date
+  rowid_to_column() %&gt;% # Add RowID (this is needed for the purr::map function)
+  rename(AbsonderungBis = AbsonderunBis) %&gt;% # Correct SurvNet mistake
   mutate(Meldedatum = as.Date(Meldedatum, format = &quot;%d.%m.%Y&quot;)) %&gt;% 
   mutate(AbsonderungVon = as.Date(AbsonderungVon, format = &quot;%d.%m.%Y&quot;)) %&gt;% 
   mutate(AbsonderungBis = as.Date(AbsonderungBis, format = &quot;%d.%m.%Y&quot;)) %&gt;% 
   mutate(Meldemonat = paste(year(AbsonderungVon), format.Date(AbsonderungVon, &quot;%m&quot;), sep = &quot;_&quot;)) %&gt;% 
   mutate(Meldewoche = paste(year(AbsonderungVon), format.Date(AbsonderungVon, &quot;%W&quot;), sep = &quot;_&quot;)) %&gt;% 
-  mutate(dauer = as.numeric(AbsonderungBis - AbsonderungVon)) 
+  mutate(dauer = as.numeric(AbsonderungBis - AbsonderungVon)) %&gt;% 
+  mutate(abstandVonBis = AbsonderungBis - AbsonderungVon) %&gt;% # create time periods used for filtering
+  mutate(abstandMeldedatumVon = Meldedatum - AbsonderungVon) %&gt;% # create time periods used for filtering
+  mutate(AgeGroup = recode_factor(AgeGroup, &quot;&lt;7&quot; = &quot;0 to 6&quot;, &quot;7bis17&quot; = &quot;7 to 17&quot;, &quot;18bis64&quot; = &quot;18 to 64&quot;, &quot;&gt;64&quot; = &quot;65 to 110&quot;, .ordered = TRUE))
+}
 
-
-# create time periods used for filtering
-df &lt;- df %&gt;% 
-  mutate(abstandVonBis = AbsonderungBis - AbsonderungVon) %&gt;% 
-  mutate(abstandMeldedatumVon = Meldedatum - AbsonderungVon)
-
-# Switch AgeGroup into an ordered factor
-df &lt;- df %&gt;% 
-  mutate(AgeGroup = recode_factor(AgeGroup, &quot;&lt;7&quot; = &quot;0 to 6&quot;, &quot;7bis17&quot; = &quot;7 to 17&quot;, &quot;18bis64&quot; = &quot;18 to 64&quot;, &quot;&gt;64&quot; = &quot;65 to 110&quot;, .ordered = TRUE))</code></pre>
+df &lt;- read_survnetdata()</code></pre>
 </div>
 <div id="filtering" class="section level2" number="2.6">
 <h2><span class="header-section-number">2.6</span> Filtering</h2>
@@ -2206,7 +2196,7 @@ resultslist$incidence &lt;- df %&gt;%
 resultslist$incidence_total &lt;- df %&gt;% 
     group_by(DatensatzKategorie) %&gt;% 
     summarise(n = n(), .groups = &#39;drop&#39;) %&gt;% 
-    mutate(totalpopulation = demographiedaten_total) %&gt;% 
+    mutate(totalpopulation = demographiedaten %&gt;% summarise(sum(value))) %&gt;% 
     mutate(incidence = round(100*n/totalpopulation)) </code></pre>
 <p>The local public health agency Reinickendorf ordered isolations for
 slightly less than 10% and quarantines for a bit more than 15% of the
