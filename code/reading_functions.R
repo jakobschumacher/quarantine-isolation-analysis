@@ -1,5 +1,5 @@
-read_demographiedata <- function(datafile = "data/EWR202012E_Matrix.csv"){
-  datafile %>% 
+tidy_demographiedata <- function(data_demographie_file){
+  data_demographie_file %>% 
     read_delim(delim = ";", show_col_types = FALSE) %>% 
     filter(BEZ == "12")  %>% 
     summarise('0 to 6' = sum(E_E00_01 + E_E01_02  + E_E02_03  + E_E03_05  + E_E05_06  +E_E06_07),
@@ -9,7 +9,7 @@ read_demographiedata <- function(datafile = "data/EWR202012E_Matrix.csv"){
     pivot_longer(cols = everything())
 }
 
-read_survnetdata <- function(datafile ="data/absonderungslast_ohneNamen_altersgruppe2.csv"){
+read_survnetdata <- function(datafile = data_survnet_file){
   datafile %>% 
     read_delim(delim = ",", show_col_types = FALSE)  %>%  # reading in the date
     rowid_to_column() %>% # Add RowID (this is needed for the purr::map function)

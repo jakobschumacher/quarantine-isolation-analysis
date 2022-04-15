@@ -1,5 +1,4 @@
 set_filter <- function(dataset, externalinput){  
-
   dataset %>% 
     mutate(definitionvar = "notdefined") %>% 
     mutate(definitionvar = ifelse(!is.na(AbsonderungVon) & !is.na(AbsonderungBis), "defined", definitionvar)) %>% 
@@ -19,28 +18,23 @@ set_filter <- function(dataset, externalinput){
 }
 
 
-get_info_about_filtering <- function(methodslist = methodslist, rows_to_be_filtered = rows_to_be_filtered){
-  
-  methodslist$queried <- nrow(rows_to_be_filtered)  
-  
-  methodslist$definitionvar <- rows_to_be_filtered %>% 
+get_info_about_filtering <- function(rows_to_be_filtered = rows_to_be_filtered){
+  results_filtering <- list()
+  results_filtering$queried <- nrow(rows_to_be_filtered)  
+  results_filtering$definitionvar <- rows_to_be_filtered %>% 
     select(definitionvar) %>% 
     table()
-  
-  
-  methodslist$outofrange <- rows_to_be_filtered %>% 
+  results_filtering$outofrange <- rows_to_be_filtered %>% 
     filter(definitionvar == "defined") %>% 
     select(outofrange) %>% 
     table()
-  
-  methodslist$wrongEntries <- rows_to_be_filtered %>% 
+  results_filtering$wrongEntries <- rows_to_be_filtered %>% 
     filter(definitionvar == "defined") %>% 
     filter(outofrange == "inrange") %>% 
     select(filtervar) %>% 
     table()  
- 
-  methodslist 
-  
+  saveRDS(results_filtering, file = "data/results/info_about_filtering.rds")
+  "data/results/info_about_filtering.rds"
 }
 
 

@@ -38,6 +38,11 @@ The following R-Script calculates all the necessary numbers and figures for a pu
 
 ## About Reinickendorf
 
+
+
+
+
+
 # Setup
 
 ## Setting options for knitr, ggplot, fonts 
@@ -77,9 +82,6 @@ mypalette = 'Set1'
 
 ## Creating storage variables
 ```{r creating storage variables}
-# This variable stores all numbers needed for the method section in the script
-methodslist <- list()
-resultslist <- list()
 
 # Create a check function for testing purposes
 checkanonids <- function(){
@@ -92,35 +94,9 @@ print(df %>% filter(AnonID == "ID015472"))
 
 
 ## Population data from Berlin Reinickendorf, Germany
-```{r population data}
-
-# Read in data
-externalinput <- tar_read(externalinput) # Here we read in self written data 
-demographiedata <- tar_read(demographiedata) # Data about the population
-df <- tar_read(df) # SurvNet data
-
-## Filtering
-methodslist <- tar_read(store_info_about_filtering)
-df <- tar_read(df_filtered)
-
-```
 
 ## Filtering and adjusting duplicate entries
 This part looks for duplicated separation orders. It takes the maximum and the minimum of duplicated entries 
-```{r Duplicate entries}
-# source("code/recoding_functions.R")
-# methodslist <- list()
-# df <- de_duplication(df)
-library(targets)
-list_deduplicated <- tar_read(list_deduplicated)
-
-  "data/results.csv" %>%
-    read_csv(col_types = cols(.default = "c")) %>% 
-    bind_rows(c(varname = "doppeltefaelle", "value" = nrow(doppelte_faelle_df) - nrow(doppelte_faelle_df_bereinigt))) %>% 
-    bind_rows(c(varname = "doppeltekps", "value" = nrow(doppelte_kps_df) - nrow(doppelte_kps_df_bereinigt))) %>% 
-    write_csv("data/results.csv")
-
-```
 
 
 ## Correct quarantine if it overlaps with isolation
@@ -174,134 +150,22 @@ This functions checks for overlapping quarantine and isolation orders.
 
 For examples check the following AnonIDs: ID000004, ID000002, ID000435
 
-```{r quarantine-isolation-overlap, eval = params$completerun}
-# This function checks for overlap and adjusts the quarantine if needed
-adjustoverlapquarantine <- function(data_input, pair) {
-  i <- pair[1]
-  j <- pair[2]
-  first <- c(data_input$AbsonderungVon[i], data_input$AbsonderungBis[i])
-  second <- c(data_input$AbsonderungVon[j], data_input$AbsonderungBis[j])
-  firstsequence <- seq(data_input$AbsonderungVon[i], data_input$AbsonderungBis[i], by = 1)
-  secondsequence <- seq(data_input$AbsonderungVon[j], data_input$AbsonderungBis[j], by = 1)
-  if(first %overlaps% second) {
-    if(data_input$DatensatzKategorie[i] == "COVID-19" & data_input$DatensatzKategorie[j] == "Kontakt-COVID-19") {
-      if(min(secondsequence)<min(firstsequence)){
-        data_input$AbsonderungVon[j] <- min(secondsequence)
-        data_input$AbsonderungBis[j] <- min(firstsequence)  
-      } else {data_input <- data_input[-c(j),]}
-      
-    }  else if(data_input$DatensatzKategorie[i] == "Kontakt-COVID-19" & data_input$DatensatzKategorie[j] == "COVID-19") {
-      if(min(firstsequence)<min(secondsequence)){
-        data_input$AbsonderungVon[i] <- min(firstsequence)
-        data_input$AbsonderungBis[i] <- min(secondsequence)  
-      } else {data_input <- data_input[-c(i),]}
-    }
-  }
-  data_input
-}
 
-# This function applies the adjustoverlapquarantine to every testsubject
-adjustoverlapquarantine_concise <- function(data_input, testsubject) {
-  tdf <- data_input %>% filter(AnonID == testsubject) 
-  mylist <- pairslist[[nrow(tdf)]]
-  allvalues <- map(mylist, ~adjustoverlapquarantine(tdf, .x))
-  table <- bind_rows(allvalues) 
-  table <- table %>% 
-    count(rowid) %>% 
-    filter(n==length(mylist)) %>% 
-    select(-n) %>%  
-    left_join(table, by = "rowid") %>% 
-    distinct() %>% 
-    group_by(rowid) %>% 
-    mutate(AbsonderungVon = min(AbsonderungVon)) %>% 
-    mutate(AbsonderungBis = min(AbsonderungBis)) %>% 
-    distinct()
-  
-  table 
-}
-
-
-# Table is split up to save calculation time
-einzelne_anonIDs <- df %>% count(AnonID) %>% filter(n==1) %>% pull(AnonID)
-doppelte_anonIDs <- df %>% count(AnonID) %>% filter(n>1) %>% pull(AnonID)
-
-einzelne_anonIDs_df <- df %>% filter(AnonID %in% einzelne_anonIDs)
-doppelte_anonIDs_df <- df %>% filter(AnonID %in% doppelte_anonIDs)
-
-
-print("yeah")
-# This function actually does all the work and puts together the functions above
-doppelte_anonIDs_df_bereinigt <- bind_rows(map(doppelte_anonIDs, ~adjustoverlapquarantine_concise(data_input = doppelte_anonIDs_df, testsubject = .x)))
-
-# Saving for the results
-methodslist$ueberlappendeFalleKP <- nrow(doppelte_anonIDs_df) - nrow(doppelte_anonIDs_df_bereinigt) 
- 
-# The table is put together again
-df <- bind_rows(doppelte_anonIDs_df_bereinigt, einzelne_anonIDs_df) %>% ungroup()
+# Results
+```{r Results}
+# Hier wird die gespeicherte Tabelle eingelesen
+df <- tar_read(df)
+demographiedaten <- tar_read(demographiedaten)
+zeiten <- tar_read(externalinput)$zeiten
+externalinput <- tar_read(externalinput)
+resultslist <- c(
+  readRDS("data/results/info_about_filtering.rds"),
+  readRDS("data/results/info_about_deduplication.rds"),
+  readRDS("data/results/info_about_overlapadjust.rds"))
 ```
 
 
-## Find adjoining quarantines and isolations 
-```{r quarantine-isolation-adjoining, eval = params$completerun}
 
-# Set empty value
-df$adjoiningQandI <- NA
-
-# what counts as adjoining 
-adjoiningwhentimedifference <- seq(0,6) 
-
-adjoincheck <- function(data_input, pair) {
-  i <- pair[1] # this is number one
-  j <- pair[2] # this is number two
-  twoafterone <- data_input$AbsonderungVon[j] - data_input$AbsonderungBis[i]  # if one after two its positive
-  oneaftertwo <- data_input$AbsonderungVon[i] - data_input$AbsonderungBis[j] # if two after one its positive
-  if(data_input$DatensatzKategorie[i] == "COVID-19" & data_input$DatensatzKategorie[j] == "Kontakt-COVID-19") {
-    if(oneaftertwo %in% adjoiningwhentimedifference){
-      data_input$adjoiningQandI[i] <- oneaftertwo
-      data_input$adjoiningQandI[j] <- oneaftertwo
-    } 
-  }  else if(data_input$DatensatzKategorie[i] == "Kontakt-COVID-19" & data_input$DatensatzKategorie[j] == "COVID-19") {
-    if(twoafterone %in% adjoiningwhentimedifference){
-      data_input$adjoiningQandI[i] <- twoafterone
-      data_input$adjoiningQandI[j] <- twoafterone
-    }  
-  }
-  data_input
-}
- 
-adjoincheck_concise <- function(data_input, testsubject) {
-  tdf <- data_input %>% filter(AnonID == testsubject) 
-  mylist <- pairslist[[nrow(tdf)]]
-  allvalues <- map(mylist, ~adjoincheck(tdf, .x))
-  table <- bind_rows(allvalues) 
-  changedrowids <- table %>% filter(!is.na(adjoiningQandI)) %>% distinct()
-  notchangedrowids <- table %>% filter(!rowid %in% changedrowids$rowid) %>% select(rowid) %>% distinct() %>% left_join(tdf, by = "rowid")
-  data_output <- bind_rows(changedrowids, notchangedrowids)
-  data_output
-}
-
-# Split up the df to save computing time
-einzelne_anonIDs <- df %>% count(AnonID) %>% filter(n==1) %>% pull(AnonID)
-doppelte_anonIDs <- df %>% count(AnonID) %>% filter(n>1) %>% pull(AnonID)
-einzelne_anonIDs_df <- df %>% filter(AnonID %in% einzelne_anonIDs)
-doppelte_anonIDs_df <- df %>% filter(AnonID %in% doppelte_anonIDs)
-
-# This call does all the work 
-doppelte_anonIDs_df_bereinigt <- bind_rows(map(doppelte_anonIDs, ~adjoincheck_concise(data_input = doppelte_anonIDs_df, testsubject = .x)))
-
-# The df is put together again
-df <- bind_rows(doppelte_anonIDs_df_bereinigt, einzelne_anonIDs_df)
-
-```
-
-
-## Time periods
-```{r timeperiods, eval = params$completerun}
-
-# Join with the main dataset
-df <- df %>% 
-  left_join(externalinput$zeiten, by = c("AbsonderungVon" = "dates"))
-```
 
 
 ```{r}
@@ -320,28 +184,6 @@ df <- df %>%
 
 
 
-## Save datasets
-```{r saving_datasets, eval = params$completerun}
-saveRDS(df, paste0("data/", today(), "-df.rdata"))
-saveRDS(methodslist, paste0("data/", today(), "-methodslist.rdata"))
-saveRDS(resultslist, paste0("data/", today(), "-resultslist.rdata"))
-saveRDS(demographiedaten, paste0("data/", today(), "-demographiedaten.rdata"))
-saveRDS(zeiten, paste0("data/", today(), "-zeiten.rdata"))
-
-# rm(list=ls())
-```
-
-
-
-# Results
-```{r Results}
-# Hier wird die gespeicherte Tabelle eingelesen
-df <- readRDS(paste0("data/", params$dataversion, "-df.rdata")) %>% ungroup()
-methodslist <- readRDS(paste0("data/", params$dataversion, "-methodslist.rdata"))
-resultslist <- readRDS(paste0("data/", params$dataversion, "-resultslist.rdata"))
-demographiedaten <- readRDS(paste0("data/", params$dataversion, "-demographiedaten.rdata"))
-zeiten <- readRDS(paste0("data/", params$dataversion, "-zeiten.rdata"))
-```
 
 ## Numbers of quarantine and isolation
 ```{r N_and_incidence}
@@ -480,7 +322,7 @@ resultslist$ueberlappendeQundI %>%
 ```
 
 ## Text for Publication 
-We extracted `r methodslist$queried` datasets from SurvNet. `r methodslist$outofrange[['inrange']]` entries fullfilled the definition `r methodslist$definitionvar[['notdefined']]` had missing dates, `r methodslist$definitionvar[['wrongID']]` entries had an IDs that did not lead to an existing person and `r methodslist$outofrange[['outofrange']]` did not have a beginning of the stay-at-home-order in the study period). We removed `r methodslist$wrongEntries[['typingerror']]` entries because they had a presumed typing error in one of the dates. We also removed `r methodslist$doppeltefaelle ` duplicated isolations and `r methodslist$doppeltekps ` duplicated quarantines. For XXXX quarantines we reduced the length by the overlap with a following isolation period. In the demographic data we found `r demographiedaten %>% summarise(sum(value)) %>% pull() ` inhabitants registered in Berlin Reinickendorf (`r demographiedaten %>% filter(name=="Kleiner7") %>% pull(value) ` in the age group <7; `r demographiedaten %>% filter(name=="Von7Bis17") %>% pull(value) ` in the age group 7-17; `r demographiedaten %>% filter(name=="Von18bis65") %>% pull(value) ` in the age group 18-64 and `r demographiedaten %>% filter(name=="Groesser64") %>% pull(value) ` in the age group >64).
+We extracted `r resultslist$queried` datasets from SurvNet. `r resultslist$outofrange[['inrange']]` entries fullfilled the definition `r resultslist$definitionvar[['notdefined']]` had missing dates, `r resultslist$definitionvar[['wrongID']]` entries had an IDs that did not lead to an existing person and `r resultslist$outofrange[['outofrange']]` did not have a beginning of the stay-at-home-order in the study period). We removed `r resultslist$wrongEntries[['typingerror']]` entries because they had a presumed typing error in one of the dates. We also removed `r resultslist$doppeltefaelle ` duplicated isolations and `r resultslist$doppeltekps ` duplicated quarantines. For XXXX quarantines we reduced the length by the overlap with a following isolation period. In the demographic data we found `r demographiedaten %>% summarise(sum(value)) %>% pull() ` inhabitants registered in Berlin Reinickendorf (`r demographiedaten %>% filter(name=="Kleiner7") %>% pull(value) ` in the age group <7; `r demographiedaten %>% filter(name=="Von7Bis17") %>% pull(value) ` in the age group 7-17; `r demographiedaten %>% filter(name=="Von18bis65") %>% pull(value) ` in the age group 18-64 and `r demographiedaten %>% filter(name=="Groesser64") %>% pull(value) ` in the age group >64).
 
 *Analysis of quantity of isolation and quarantines:*  The local public health institute Reinickendorf von  Berlin did order `r resultslist$GesamtI ` isolations and `r resultslist$GesamtQ` quarantines. This amounts to a percentage of `r round(resultslist$GesamtI * 100 / demographiedaten %>% summarise(sum(value)),1) %>% pull()` isolations and `r round(resultslist$GesamtQ * 100 / demographiedaten %>% summarise(sum(value)) %>% pull(),1) ` quarantines of inhabitants. The number of isolations per 100 people in each age group was:  `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "< 7") %>% pull(incidence) %>% round()` <7, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "7 to 17") %>% pull(incidence) %>% round()` 7-17, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "18 to 64") %>% pull(incidence) %>% round()` 18-64, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == " > 64") %>% pull(incidence) %>% round()` >64. The number of quarantines per 100 people in each age group was:  `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "< 7") %>% pull(incidence) %>% round()` in the age group <7, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "7 to 17") %>% pull(incidence) %>% round()` in the age group 7-17, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "18 to 64") %>% pull(incidence) %>% round()` in the age group 18-64, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == " > 64") %>% pull(incidence) %>% round()` in the age group >64 (see figure \@ref(fig:incidence)). `r resultslist$QundIproPerson %>% filter(number==1) %>% pull(Percentage)` % of persons had one stay at home order (quarantine or isolation), `r resultslist$QundIproPerson %>% filter(number==2) %>% pull(Percentage)` % had two stay at home orders and `r resultslist$QundIproPerson %>% filter(number==3) %>% pull(Percentage)` % had three stay at home orders. The maximum number of stay at home orders per person was `r resultslist$highestQundIproPerson`.  
 
