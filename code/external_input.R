@@ -1,6 +1,7 @@
+
+read_externalinput <- function(){
+
 externalinput <- list()
-
-
 
 ########################################################
 # Special dates
@@ -112,5 +113,5 @@ externalinput$zeiten <- tibble(dates =seq(externalinput$StartDate, externalinput
   left_join(I_Duration, by = "dates") %>% 
   left_join(Q_Duration, by = "dates")
 
-# Remove unneeded objects 
-rm(Q_Def, I_Duration, Q_Duration)
+externalinput
+}

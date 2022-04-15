@@ -45,9 +45,6 @@ The following R-Script calculates all the necessary numbers and figures for a pu
 # Disabeling scientific notation
 options(scipen = 999)
 
-# Adjust the root directory. Depending on the placement of your R-Project-File you need to adjust this 
-# knitr::opts_knit$set(root.dir = here::here())
-
 # Create correct figure caption
 knitr::opts_knit$set(eval.after = 'fig.cap')
 
@@ -93,165 +90,36 @@ print(df %>% filter(AnonID == "ID015472"))
 }
 ```
 
-## External input
-```{r Methods external input}
-source("code/external_input.R")
-```
-
 
 ## Population data from Berlin Reinickendorf, Germany
 ```{r population data}
-read_demographiedata <- function(datafile = "data/EWR202012E_Matrix.csv"){
-    datafile %>% 
-  read_delim(delim = ";", show_col_types = FALSE) %>% 
-  filter(BEZ == "12")  %>% 
-  summarise('0 to 6' = sum(E_E00_01 + E_E01_02  + E_E02_03  + E_E03_05  + E_E05_06  +E_E06_07),
-            '7 to 17' = sum(E_E07_08 + E_E08_10  + E_E10_12 + E_E12_14 + E_E14_15  + E_E15_18),
-            '18 to 64' = sum(E_E18U25 + E_E25U55 + E_E55U65),
-            '65 to 110' = sum(E_E65U80 + E_E80U110)) %>% 
-  pivot_longer(cols = everything())
-}
 
-demographiedata <- read_demographiedata()
-```
+# Read in data
+externalinput <- tar_read(externalinput) # Here we read in self written data 
+demographiedata <- tar_read(demographiedata) # Data about the population
+df <- tar_read(df) # SurvNet data
 
+## Filtering
+methodslist <- tar_read(store_info_about_filtering)
+df <- tar_read(df_filtered)
 
-## Reading and tidying the dataset
-```{r reading and tidying, eval = params$completerun}
-
-read_survnetdata <- function(datafile ="data/absonderungslast_ohneNamen_altersgruppe2.csv"){
-  datafile %>% 
-  read_delim(delim = ",", show_col_types = FALSE)  %>%  # reading in the date
-  rowid_to_column() %>% # Add RowID (this is needed for the purr::map function)
-  rename(AbsonderungBis = AbsonderunBis) %>% # Correct SurvNet mistake
-  mutate(Meldedatum = as.Date(Meldedatum, format = "%d.%m.%Y")) %>% 
-  mutate(AbsonderungVon = as.Date(AbsonderungVon, format = "%d.%m.%Y")) %>% 
-  mutate(AbsonderungBis = as.Date(AbsonderungBis, format = "%d.%m.%Y")) %>% 
-  mutate(Meldemonat = paste(year(AbsonderungVon), format.Date(AbsonderungVon, "%m"), sep = "_")) %>% 
-  mutate(Meldewoche = paste(year(AbsonderungVon), format.Date(AbsonderungVon, "%W"), sep = "_")) %>% 
-  mutate(dauer = as.numeric(AbsonderungBis - AbsonderungVon)) %>% 
-  mutate(abstandVonBis = AbsonderungBis - AbsonderungVon) %>% # create time periods used for filtering
-  mutate(abstandMeldedatumVon = Meldedatum - AbsonderungVon) %>% # create time periods used for filtering
-  mutate(AgeGroup = recode_factor(AgeGroup, "<7" = "0 to 6", "7bis17" = "7 to 17", "18bis64" = "18 to 64", ">64" = "65 to 110", .ordered = TRUE))
-}
-
-df <- read_survnetdata()
-
-```
-
-
-##  Filtering
-```{r Filtering, eval = params$completerun}
-# Saving for publication
-methodslist$queried <- nrow(df)
-
-# finding entries that meet the case definition
-df <- df %>% 
-  mutate(definitionvar = "notdefined") %>% 
-  mutate(definitionvar = ifelse(!is.na(AbsonderungVon) & !is.na(AbsonderungBis), "defined", definitionvar)) %>% 
-  mutate(definitionvar = ifelse(!is.na(AbsonderungVon) & !is.na(AbsonderungBis), "defined", definitionvar)) %>% 
-  mutate(definitionvar = ifelse(AnonID == externalinput$wrong_id, "wrongID", definitionvar)) %>% 
-  mutate(definitionvar = ifelse(AnonID == externalinput$wrong_id2, "wrongID", definitionvar)) 
-# saving for results
-methodslist$definitionvar <- table(df$definitionvar)
-# actual filtering
-df <- df %>% filter(definitionvar == "defined")
-
-# finding entries whith a date that is not in the timeframe
-df <- df %>% 
-  mutate(outofrange = "inrange") %>% 
-  mutate(outofrange = ifelse(AbsonderungVon < externalinput$StartDate | AbsonderungVon > (externalinput$EndDate + 14), "outofrange", outofrange)) %>%
-  mutate(outofrange = ifelse(AbsonderungBis < externalinput$StartDate | AbsonderungBis > (externalinput$EndDate + 14), "outofrange", outofrange)) %>%
-  mutate(outofrange = ifelse(Meldedatum < externalinput$StartDate | Meldedatum > (externalinput$EndDate + 14), "outofrange", outofrange)) 
-# saving for results
-methodslist$outofrange <- table(df$outofrange)
-# actual filtering
-df <- df %>% filter(outofrange == "inrange")
-
-# finding entries with a presumable data entry error
-df <- df  %>% 
-  mutate(filtervar = "korrekt") %>% 
-  mutate(filtervar = ifelse(abstandVonBis > 30, "typingerror", filtervar)) %>%
-  mutate(filtervar = ifelse(abstandVonBis < 1, "typingerror", filtervar)) %>%
-  mutate(filtervar = ifelse(abstandMeldedatumVon < -30, "typingerror", filtervar)) %>%
-  mutate(filtervar = ifelse(abstandMeldedatumVon > 30, "typingerror", filtervar)) 
-# saving for results
-methodslist$wrongEntries <- table(df$filtervar) 
-# actual filtering
-df <- df %>%  filter(filtervar == "korrekt") 
-
-# cleaning up  
-df <- df %>% select(-abstandMeldedatumVon, -abstandVonBis, -filtervar, -outofrange, -definitionvar)
 ```
 
 ## Filtering and adjusting duplicate entries
 This part looks for duplicated separation orders. It takes the maximum and the minimum of duplicated entries 
-```{r Duplicate entries, eval = params$completerun}
-# This function creates a list of numbers which is needed for the other functions
-overlapcheck_pairs <- function(highest = 10){
-  mytibble <- tibble(value = 1:highest) %>% 
-    expand(value, value1 = value) %>% 
-    filter(value < value1) 
-  mylist <- map(1:nrow(mytibble), ~c(mytibble$value[.x], mytibble$value1[.x]))
-  mylist
-}
-# This call creates the list with the function overlapcheck_pairs
-pairslist <- map(1:(df %>% count(AnonID) %>% top_n(1, wt = n) %>% pull(n))[1], ~overlapcheck_pairs(.x)) # Legt die Pairsliste an
+```{r Duplicate entries}
+# source("code/recoding_functions.R")
+# methodslist <- list()
+# df <- de_duplication(df)
+library(targets)
+list_deduplicated <- tar_read(list_deduplicated)
 
-# This function checks wheter two entries overlap
-overlapcheck <- function(data_input, pair) {
-  i <- pair[1]
-  j <- pair[2]
-  first <- c(data_input$AbsonderungVon[i], data_input$AbsonderungBis[i])
-  second <- c(data_input$AbsonderungVon[j], data_input$AbsonderungBis[j])
-if(first %overlaps% second) {
-  data_input$AbsonderungVon[i] <- min(c(first, second))
-  data_input$AbsonderungBis[i] <- max(c(first, second))
-  data_input <- data_input[-c(j),]
-}
-  data_input
-}
+  "data/results.csv" %>%
+    read_csv(col_types = cols(.default = "c")) %>% 
+    bind_rows(c(varname = "doppeltefaelle", "value" = nrow(doppelte_faelle_df) - nrow(doppelte_faelle_df_bereinigt))) %>% 
+    bind_rows(c(varname = "doppeltekps", "value" = nrow(doppelte_kps_df) - nrow(doppelte_kps_df_bereinigt))) %>% 
+    write_csv("data/results.csv")
 
-# This function uses the function overlapcheck on the table of one person and gives the result with only correct entries. 
-overlapcheck_concise <- function(data_input, testsubject) {
-  tdf <- data_input %>% filter(AnonID == testsubject) 
-  mylist <- pairslist[[nrow(tdf)]]
-  allvalues <- map(mylist, ~overlapcheck(tdf, .x))
-  table <- bind_rows(allvalues) 
-  table %>% 
-    count(rowid) %>% 
-    filter(n==length(mylist)) %>% 
-    select(-n) %>%  
-    left_join(table, by = "rowid") %>% 
-    distinct() %>% 
-    group_by(rowid) %>% 
-    mutate(AbsonderungVon = min(AbsonderungVon)) %>% 
-    mutate(AbsonderungBis = max(AbsonderungBis)) %>% 
-    distinct()
-}
-
-# To save calculation time the complete dataset is split up. I am sure there is an easier way but this is a safe way.
-kps <- df %>% filter(DatensatzKategorie == "Kontakt-COVID-19")
-faelle <- df %>% filter(DatensatzKategorie == "COVID-19")
-einzelne_kps <- kps %>% count(AnonID) %>% filter(n==1) %>% pull(AnonID)
-doppelte_kps <- kps %>% count(AnonID) %>% filter(n>1) %>% pull(AnonID)
-einzelne_faelle <- faelle %>% count(AnonID) %>% filter(n==1) %>% pull(AnonID)
-doppelte_faelle <- faelle %>% count(AnonID) %>% filter(n>1) %>% pull(AnonID)
-einzelne_kps_df <- kps %>% filter(AnonID %in% einzelne_kps)
-doppelte_kps_df <- kps %>% filter(AnonID %in% doppelte_kps)
-einzelne_faelle_df <- faelle %>% filter(AnonID %in% einzelne_faelle)
-doppelte_faelle_df <- faelle %>% filter(AnonID %in% doppelte_faelle)
-
-# These functions do the actual work of adjusting the overlapping periods
-doppelte_faelle_df_bereinigt <- bind_rows(map(doppelte_faelle, ~overlapcheck_concise(data_input = doppelte_faelle_df, testsubject = .x)))
-doppelte_kps_df_bereinigt <- bind_rows(map(doppelte_kps, ~overlapcheck_concise(data_input = doppelte_kps_df, testsubject = .x)))
-
-# Saving for the publication
-methodslist$doppeltefaelle <- nrow(doppelte_faelle_df) - nrow(doppelte_faelle_df_bereinigt)
-methodslist$doppeltekps <- nrow(doppelte_kps_df) - nrow(doppelte_kps_df_bereinigt)
-
-# Putting the table back together
-df <- bind_rows(doppelte_faelle_df_bereinigt, doppelte_kps_df_bereinigt, einzelne_faelle_df, einzelne_kps_df) %>% ungroup()
 ```
 
 
@@ -307,8 +175,6 @@ This functions checks for overlapping quarantine and isolation orders.
 For examples check the following AnonIDs: ID000004, ID000002, ID000435
 
 ```{r quarantine-isolation-overlap, eval = params$completerun}
-# overlappingQandI_df <- tibble(AnonID = unique(df$AnonID), overlappingIDs = rep(NA, length(unique(df$AnonID))))
-
 # This function checks for overlap and adjusts the quarantine if needed
 adjustoverlapquarantine <- function(data_input, pair) {
   i <- pair[1]
@@ -362,6 +228,8 @@ doppelte_anonIDs <- df %>% count(AnonID) %>% filter(n>1) %>% pull(AnonID)
 einzelne_anonIDs_df <- df %>% filter(AnonID %in% einzelne_anonIDs)
 doppelte_anonIDs_df <- df %>% filter(AnonID %in% doppelte_anonIDs)
 
+
+print("yeah")
 # This function actually does all the work and puts together the functions above
 doppelte_anonIDs_df_bereinigt <- bind_rows(map(doppelte_anonIDs, ~adjustoverlapquarantine_concise(data_input = doppelte_anonIDs_df, testsubject = .x)))
 
