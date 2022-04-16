@@ -12,9 +12,10 @@ create_pairslist <- function(maximumnumber = 84){
   pairslist
 }
 
-###################################################
-# De duplication
-###################################################
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# De duplication 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # This function checks wheter two entries overlap
 overlapcheck <- function(data_input, pair) {
   i <- pair[1]
@@ -107,9 +108,9 @@ list_to_df_after_deduplication <- function(list_deduplicated){
 }
 
 
-###########################################
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Adjust_overlap
-###########################################
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This function checks for overlap and adjusts the quarantine if needed
 adjustoverlapquarantine <- function(data_input, pair) {
@@ -123,13 +124,15 @@ adjustoverlapquarantine <- function(data_input, pair) {
     if(data_input$DatensatzKategorie[i] == "COVID-19" & data_input$DatensatzKategorie[j] == "Kontakt-COVID-19") {
       if(min(secondsequence)<min(firstsequence)){
         data_input$AbsonderungVon[j] <- min(secondsequence)
-        data_input$AbsonderungBis[j] <- min(firstsequence)  
+        data_input$AbsonderungBis[j] <- min(firstsequence)
+        data_input$overlapadjusted[j] <- "adjusted"
       } else {data_input <- data_input[-c(j),]}
       
     }  else if(data_input$DatensatzKategorie[i] == "Kontakt-COVID-19" & data_input$DatensatzKategorie[j] == "COVID-19") {
       if(min(firstsequence)<min(secondsequence)){
         data_input$AbsonderungVon[i] <- min(firstsequence)
         data_input$AbsonderungBis[i] <- min(secondsequence)  
+        data_input$overlapadjusted[i] <- "adjusted"
       } else {data_input <- data_input[-c(i),]}
     }
   }
@@ -137,69 +140,57 @@ adjustoverlapquarantine <- function(data_input, pair) {
 }
 
 # This function applies the adjustoverlapquarantine to every testsubject
-adjustoverlapquarantine_concise <- function(data_input, testsubject, pair = pairslist) {
-  pairslist <- pair
+adjustoverlapquarantine_concise <- function(data_input, testsubject, pairslist = pairslist) {
   tdf <- data_input %>% filter(AnonID == testsubject) 
   mylist <- pairslist[[nrow(tdf)]]
   allvalues <- map(mylist, ~adjustoverlapquarantine(tdf, .x))
   table <- bind_rows(allvalues) 
-  table <- table %>% 
-    count(rowid) %>% 
-    filter(n==length(mylist)) %>% 
-    select(-n) %>%  
-    left_join(table, by = "rowid") %>% 
-    distinct() %>% 
-    group_by(rowid) %>% 
-    mutate(AbsonderungVon = min(AbsonderungVon)) %>% 
-    mutate(AbsonderungBis = min(AbsonderungBis)) %>% 
-    distinct()
-  
-  table 
+  changedrowids <- table %>% filter(overlapadjusted == "adjusted") %>% distinct()
+  notchangedrowids <- table %>% filter(!rowid %in% changedrowids$rowid) %>% select(rowid) %>% distinct() %>% left_join(tdf, by = "rowid")
+  data_output <- bind_rows(changedrowids, notchangedrowids)
+  data_output 
 }
 
 adjust_overlap <- function(df_deduplicated){
   df <- df_deduplicated
-# To save calculation time the complete dataset is split up. I am sure there is an easier way but this is a safe way.
-einzelne_anonIDs <- df %>% count(AnonID) %>% filter(n==1) %>% pull(AnonID)
-doppelte_anonIDs <- df %>% count(AnonID) %>% filter(n>1) %>% pull(AnonID)
-einzelne_anonIDs_df <- df %>% filter(AnonID %in% einzelne_anonIDs)
-doppelte_anonIDs_df <- df %>% filter(AnonID %in% doppelte_anonIDs)
-# Create pairslist
-pairslist <- create_pairslist()
-doppelte_anonIDs_df_bereinigt <- bind_rows(map(doppelte_anonIDs, ~adjustoverlapquarantine_concise(data_input = doppelte_anonIDs_df, 
-                                                                                                  testsubject = .x,  
-                                                                                                  pair = pairslist)))
-# Saving for the publication
-output_list <- list("einzelne_anonIDs_df" = einzelne_anonIDs_df, 
-                    "doppelte_anonIDs_df" = doppelte_anonIDs_df, 
-                    "doppelte_anonIDs_df_bereinigt" = doppelte_anonIDs_df_bereinigt) 
-output_list
-}
-
-get_info_about_overlapadjust <- function(list_overlapadjusted){
-  
-  einzelne_anonIDs_df <- list_overlapadjusted$einzelne_anonIDs_df
-  doppelte_anonIDs_df <- list_overlapadjusted$doppelte_anonIDs_df
-  doppelte_anonIDs_df_bereinigt <- list_overlapadjusted$doppelte_anonIDs_df_bereinigt
-  
-  results_overlapadjust <- list()
-  results_overlapadjust$ueberlappendeFalleKP <- nrow(doppelte_anonIDs_df) - nrow(doppelte_anonIDs_df_bereinigt) 
-  
-  saveRDS(results_overlapadjust, file = "data/results/info_about_overlapadjust.rds")
-  "data/results/info_about_overlapadjust.rds"
-  
-}
-
-list_to_df_after_overlapadjust <- function(list_overlapadjusted){
-  einzelne_anonIDs_df <- list_overlapadjusted$einzelne_anonIDs_df
-  doppelte_anonIDs_df_bereinigt <- list_overlapadjusted$doppelte_anonIDs_df_bereinigt
+  # Create empty value
+  df$overlapadjusted <- NA
+  # To save calculation time the complete dataset is split up. I am sure there is an easier way but this is a safe way.
+  einzelne_anonIDs <- df %>% count(AnonID) %>% filter(n==1) %>% pull(AnonID)
+  doppelte_anonIDs <- df %>% count(AnonID) %>% filter(n>1) %>% pull(AnonID)
+  einzelne_anonIDs_df <- df %>% filter(AnonID %in% einzelne_anonIDs)
+  doppelte_anonIDs_df <- df %>% filter(AnonID %in% doppelte_anonIDs)
+  # Create pairslist
+  pairslist <- create_pairslist()
+  doppelte_anonIDs_df_bereinigt <- bind_rows(map(doppelte_anonIDs, ~adjustoverlapquarantine_concise(data_input = doppelte_anonIDs_df, 
+                                                                                                    testsubject = .x,  
+                                                                                                    pairslist = pairslist)))
+  # Saving for the publication
   df <- bind_rows(doppelte_anonIDs_df_bereinigt, einzelne_anonIDs_df) %>% ungroup()
+  
+  df
 }
+# 
+# get_info_about_overlapadjust <- function(list_overlapadjusted){
+#   einzelne_anonIDs_df <- list_overlapadjusted$einzelne_anonIDs_df
+#   doppelte_anonIDs_df <- list_overlapadjusted$doppelte_anonIDs_df
+#   doppelte_anonIDs_df_bereinigt <- list_overlapadjusted$doppelte_anonIDs_df_bereinigt
+#   results_overlapadjust <- list()
+#   results_overlapadjust$ueberlappendeFalleKP <- nrow(doppelte_anonIDs_df) - nrow(doppelte_anonIDs_df_bereinigt) 
+#   saveRDS(results_overlapadjust, file = "data/results/info_about_overlapadjust.rds")
+#   "data/results/info_about_overlapadjust.rds"
+# }
+# 
+# list_to_df_after_overlapadjust <- function(list_overlapadjusted){
+#   einzelne_anonIDs_df <- list_overlapadjusted$einzelne_anonIDs_df
+#   doppelte_anonIDs_df_bereinigt <- list_overlapadjusted$doppelte_anonIDs_df_bereinigt
+#   df <- bind_rows(doppelte_anonIDs_df_bereinigt, einzelne_anonIDs_df) %>% ungroup()
+# }
 
 
-###########################################
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Adjoining
-###########################################
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 adjoincheck <- function(data_input, pair) {
   i <- pair[1] # this is number one
@@ -226,7 +217,7 @@ adjoincheck_concise <- function(data_input, testsubject, pair = pairslist) {
   
   # Get pairslist
   pairslist <- pair
-
+  
   tdf <- data_input %>% filter(AnonID == testsubject) 
   mylist <- pairslist[[nrow(tdf)]]
   allvalues <- map(mylist, ~adjoincheck(tdf, .x))
@@ -238,27 +229,27 @@ adjoincheck_concise <- function(data_input, testsubject, pair = pairslist) {
 }
 
 find_adjoin <- function(df_overlapped) {
-
+  
   # Get the dataframe
   df <- df_overlapped
   
   # Set empty value
   df$adjoiningQandI <- NA
-
+  
   # Split up the df to save computing time
   einzelne_anonIDs <- df %>% count(AnonID) %>% filter(n==1) %>% pull(AnonID)
   doppelte_anonIDs <- df %>% count(AnonID) %>% filter(n>1) %>% pull(AnonID)
   einzelne_anonIDs_df <- df %>% filter(AnonID %in% einzelne_anonIDs)
   doppelte_anonIDs_df <- df %>% filter(AnonID %in% doppelte_anonIDs)
- 
-   # Create pairslist
+  
+  # Create pairslist
   pairslist <- create_pairslist()
   
   # Find the adjoining quarantines and isolations
   doppelte_anonIDs_df_bereinigt <- bind_rows(map(doppelte_anonIDs, ~adjoincheck_concise(data_input = doppelte_anonIDs_df, 
                                                                                         testsubject = .x,
                                                                                         pair = pairslist)))
-
+  
   df <- bind_rows(doppelte_anonIDs_df_bereinigt, einzelne_anonIDs_df)
 }
 

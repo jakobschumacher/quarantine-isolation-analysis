@@ -1,6 +1,6 @@
 library(targets)
 
-# tar_option_set(workspace_on_error = TRUE)
+tar_option_set(workspace_on_error = TRUE)
 
 source("code/external_input.R")
 source("code/reading_functions.R")
@@ -27,9 +27,7 @@ list(
   tar_target(store_info_about_deduplication, get_info_about_deduplication(list_deduplicated), format = "file"),
   tar_target(df_deduplicated, list_to_df_after_deduplication(list_deduplicated)),
   # Adjust overlap
-  tar_target(list_overlapadjusted, adjust_overlap(df_deduplicated)),
-  tar_target(store_info_about_overlapadjusted, get_info_about_overlapadjust(list_overlapadjusted), format = "file"),
-  tar_target(df_overlapped, list_to_df_after_overlapadjust(list_overlapadjusted)),
+  tar_target(df_overlapped, adjust_overlap(df_deduplicated)),
   # Find adjoining quarantines and isolations
   tar_target(df_adjoined, find_adjoin(df_overlapped)),
   # Final cleaning

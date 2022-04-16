@@ -1748,7 +1748,7 @@ a district of Berlin, Germany How many, how long, to whom and predictive
 factors</h1>
 <h4 class="author">Jakob Schumacher, Lisa Kühne, Sophie Bruessermann,
 Benjamin Geisler, Sonja Jäckle</h4>
-<h4 class="date">15. April 2022</h4>
+<h4 class="date">16. April 2022</h4>
 
 </div>
 
@@ -1820,12 +1820,10 @@ mypalette = &#39;Set1&#39;
 # Install https://fonts.google.com/specimen/PT+Sans on your local computer
 # install.packages(&quot;extrafont&quot;)
 # library(extrafont)
-# font_import() # Import all the .ttf files from your system. On Linux see also: https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext</code></pre>
-</div>
-<div id="creating-storage-variables" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> Creating storage
-variables</h2>
-<pre class="r"><code># Create a check function for testing purposes
+# font_import() # Import all the .ttf files from your system. On Linux see also: https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext
+
+
+# Create a check function for testing purposes
 checkanonids &lt;- function(){
 # df %&gt;% count(AnonID) %&gt;% filter(n&gt;3) %&gt;% pull(AnonID)
 print(df %&gt;% filter(AnonID==&quot;ID021580&quot;))
@@ -1833,18 +1831,14 @@ print(df %&gt;% filter(AnonID == &quot;ID037188&quot;))
 print(df %&gt;% filter(AnonID == &quot;ID015472&quot;))
 }</code></pre>
 </div>
-<div id="population-data-from-berlin-reinickendorf-germany" class="section level2" number="2.3">
-<h2><span class="header-section-number">2.3</span> Population data from
-Berlin Reinickendorf, Germany</h2>
-</div>
-<div id="filtering-and-adjusting-duplicate-entries" class="section level2" number="2.4">
-<h2><span class="header-section-number">2.4</span> Filtering and
+<div id="filtering-and-adjusting-duplicate-entries" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Filtering and
 adjusting duplicate entries</h2>
 <p>This part looks for duplicated separation orders. It takes the
 maximum and the minimum of duplicated entries</p>
 </div>
-<div id="correct-quarantine-if-it-overlaps-with-isolation" class="section level2" number="2.5">
-<h2><span class="header-section-number">2.5</span> Correct quarantine if
+<div id="correct-quarantine-if-it-overlaps-with-isolation" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Correct quarantine if
 it overlaps with isolation</h2>
 <p>This functions checks for overlapping quarantine and isolation
 orders.</p>
