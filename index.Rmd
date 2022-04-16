@@ -39,10 +39,6 @@ The following R-Script calculates all the necessary numbers and figures for a pu
 ## About Reinickendorf
 
 
-
-
-
-
 # Setup
 
 ## Setting options for knitr, ggplot, fonts 
@@ -78,10 +74,6 @@ mypalette = 'Set1'
 # library(extrafont)
 # font_import() # Import all the .ttf files from your system. On Linux see also: https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext
 
-```
-
-## Creating storage variables
-```{r creating storage variables}
 
 # Create a check function for testing purposes
 checkanonids <- function(){
@@ -90,14 +82,11 @@ print(df %>% filter(AnonID=="ID021580"))
 print(df %>% filter(AnonID == "ID037188"))
 print(df %>% filter(AnonID == "ID015472"))
 }
+
 ```
-
-
-## Population data from Berlin Reinickendorf, Germany
 
 ## Filtering and adjusting duplicate entries
 This part looks for duplicated separation orders. It takes the maximum and the minimum of duplicated entries 
-
 
 ## Correct quarantine if it overlaps with isolation
 This functions checks for overlapping quarantine and isolation orders. 
@@ -164,26 +153,19 @@ resultslist <- c(
   readRDS("data/results/info_about_overlapadjust.rds"))
 ```
 
-
-
-
-
 ```{r}
-# df %>% 
-#   filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
-#   mutate(Q_Duration_number = str_split(Q_Duration_shortvalue, " ", simplify = TRUE)[1]) %>% 
-#   mutate(Q_Duration_number = as.numeric(Q_Duration_number)) %>% 
-#   filter(Q_Duration_number == 14) %>% 
-#   mutate(Q_timeliness = dauer - Q_Duration_number) %>% 
-#   group_by(Meldewoche) %>% 
-#   summarise(timeliniess = mean(Q_timeliness)) %>% 
-#   ggplot(aes(Meldewoche, timeliniess)) +
-#   ester_theme() +
-#   geom_col()
+df %>%
+  filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
+  mutate(Q_Duration_number = str_split(Q_Duration_shortvalue, " ", simplify = TRUE)[1]) %>%
+  mutate(Q_Duration_number = as.numeric(Q_Duration_number)) %>%
+  filter(Q_Duration_number == 14) %>%
+  mutate(Q_timeliness = dauer - Q_Duration_number) %>%
+  group_by(Meldewoche) %>%
+  summarise(timeliniess = mean(Q_timeliness)) %>%
+  ggplot(aes(Meldewoche, timeliniess)) +
+  ester_theme() +
+  geom_col()
 ```
-
-
-
 
 ## Numbers of quarantine and isolation
 ```{r N_and_incidence}

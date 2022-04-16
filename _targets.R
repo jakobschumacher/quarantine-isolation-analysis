@@ -1,7 +1,6 @@
 library(targets)
 
-tar_option_set(workspace_on_error = TRUE)
-# tar_option_set(debug = "df_deduplicated")
+# tar_option_set(workspace_on_error = TRUE)
 
 source("code/external_input.R")
 source("code/reading_functions.R")
