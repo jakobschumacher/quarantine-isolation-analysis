@@ -29,15 +29,22 @@ The following R-Script calculates all the necessary numbers and figures for a pu
 ## Aim of the publication
 
 ## What you need to reproduce the script
-- All necessary files 
-- R, Rstudio and the packages. Renv is used with this project. See .Rprofile for used packages
-- Maybe you need to adjust the folder and the root dir (see setup chunk)  
-- Install the necessary fonts (see setup chunk)
 
-## About the authors
+### Files
+- All necessary files are in this repository
 
-## About Reinickendorf
+### Softare
+- R. This project uses Renv. See the file .Rprofile for used packages
 
+### Fonts
+> Setup: You will only need to run this once, but it will take a few minutes to finish 
+> Install https://fonts.google.com/specimen/PT+Sans on your local computer
+> install.packages("extrafont")
+> library(extrafont)
+> font_import() # Import all the .ttf files from your system. On Linux see also: https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext
+
+## How the script is set up
+This script runs with the package target as some steps take long to calculate. The important parts lie in the functions in the code folder. You can check the file _targets.R to see the different steps in their sequential order.
 
 # Setup
 
@@ -67,21 +74,13 @@ ester_theme <- function() {
 # Create colour palette for ggplot
 mypalette = 'Set1'
 
-# Fonts
-# Setup: You will only need to run this once, but it will take a few minutes to finish 
-# Install https://fonts.google.com/specimen/PT+Sans on your local computer
-# install.packages("extrafont")
-# library(extrafont)
-# font_import() # Import all the .ttf files from your system. On Linux see also: https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext
+
+# Was noch gemacht werden muss
+# - NV und falsche ID raus
+# - Q_Def gibt es NA values, was nicht sein kann
+# - In den Textwerten die Anzahl Q after I usw. anpassen.
 
 
-# Create a check function for testing purposes
-checkanonids <- function(){
-# df %>% count(AnonID) %>% filter(n>3) %>% pull(AnonID)
-print(df %>% filter(AnonID=="ID021580"))
-print(df %>% filter(AnonID == "ID037188"))
-print(df %>% filter(AnonID == "ID015472"))
-}
 
 ```
 
@@ -91,55 +90,6 @@ This part looks for duplicated separation orders. It takes the maximum and the m
 ## Correct quarantine if it overlaps with isolation
 This functions checks for overlapping quarantine and isolation orders. 
 
-> The following variantes are possible
-> 1 
-> KP   |----|
-> Case |----|
-> Filter min(kp)>=min(case)
-> result should be:  delete(KP)
-> 2
-> KP      |----|
-> Case |----|
-> Filter min(kp)>=min(case)
-> result should be: delete(kp)
-> 4
-> KP    |--|
-> Case |----|
-> Filter min(kp)>=min(case)
-> result should be:  delete(KP) 
-> 6
-> KP   |--|
-> Case |----|
-> Filter min(kp)>=min(case)
-> result should be: delete(KP)
-> KP   |----|
-> Case |--|
-> Filter min(kp)>=min(case) 
-> result should be: delete(kp)
-> 8
-> KP    |---|
-> Case |----|
-> Filter min(kp)>=min(case)
-> result should be: delete(kp)
-> 3
-> KP   |----|
-> Case    |----|
-> Filter min(kp)<min(case)
-> result should be:  min(KP) - min(Case)
-> 5
-> KP   |----|
-> Case  |--|
-> Filter min(kp)<min(case)
-> result should be: min(KP) - min(case)
-> 9
-> KP   |----|
-> Case  |---|
-> Filter min(kp)<min(case)
-> result should be: min(kp) - min(case)
-
-For examples check the following AnonIDs: ID000004, ID000002, ID000435
-
-
 # Results
 ```{r Results}
 # Hier wird die gespeicherte Tabelle eingelesen
@@ -147,13 +97,44 @@ df <- tar_read(df)
 demographiedaten <- tar_read(demographiedaten)
 zeiten <- tar_read(externalinput)$zeiten
 externalinput <- tar_read(externalinput)
-resultslist <- c(
-  readRDS("data/results/info_about_filtering.rds"),
-  readRDS("data/results/info_about_deduplication.rds"),
-  readRDS("data/results/info_about_overlapadjust.rds"))
+resultslist <- tar_read(results)
 ```
 
+
+
+## Text for results
+We extracted `r resultslist$queried` datasets from SurvNet. `r resultslist$outofrange[['inrange']]` entries fullfilled the definition `r resultslist$definitionvar[['notdefined']]` had missing dates, `r resultslist$definitionvar[['wrongID']]` entries had an IDs that did not lead to an existing person and `r resultslist$outofrange[['outofrange']]` did not have a beginning of the stay-at-home-order in the study period). We removed `r resultslist$wrongEntries[['typingerror']]` entries because they had a presumed typing error in one of the dates. We also removed `r resultslist$doppeltefaelle ` duplicated isolations and `r resultslist$doppeltekps ` duplicated quarantines. For `r resultslist$adjustedQuarantines` quarantines we reduced the length by the overlap with a following isolation period. In the demographic data we found `r resultslist$N %>% pull()` inhabitants registered in Berlin Reinickendorf (`r demographiedaten %>% filter(name=="0 to 6") %>% pull(value) ` in the age group <7; `r demographiedaten %>% filter(name=="7 to 17") %>% pull(value) ` in the age group 7-17; `r demographiedaten %>% filter(name=="18 to 64") %>% pull(value) ` in the age group 18-64 and `r demographiedaten %>% filter(name=="65 to 110") %>% pull(value) ` in the age group >64).
+
+*Analysis of quantity of isolation and quarantines:*  The local public health institute Reinickendorf von  Berlin did order `r resultslist$GesamtI ` isolations and `r resultslist$GesamtQ` quarantines. This amounts to a percentage of `r round(resultslist$GesamtI * 100 / demographiedaten %>% summarise(sum(value)),1) %>% pull()` isolations and `r round(resultslist$GesamtQ * 100 / demographiedaten %>% summarise(sum(value)) %>% pull(),1) ` quarantines of inhabitants. The number of isolations per 100 people in each age group was:  `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "0 to 6") %>% pull(incidence) %>% round()` <7, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "7 to 17") %>% pull(incidence) %>% round()` 7-17, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "18 to 64") %>% pull(incidence) %>% round()` 18-64, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "65 to 110") %>% pull(incidence) %>% round()` >64. The number of quarantines per 100 people in each age group was:  `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "0 to 6") %>% pull(incidence) %>% round()` in the age group <7, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "7 to 17") %>% pull(incidence) %>% round()` in the age group 7-17, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "18 to 64") %>% pull(incidence) %>% round()` in the age group 18-64, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "65 to 110") %>% pull(incidence) %>% round()` in the age group >64 (see figure \@ref(fig:incidence)). `r resultslist$QundIproPerson %>% filter(number==1) %>% pull(Percentage)` % of persons had one stay at home order (quarantine or isolation), `r resultslist$QundIproPerson %>% filter(number==2) %>% pull(Percentage)` % had two stay at home orders and `r resultslist$QundIproPerson %>% filter(number==3) %>% pull(Percentage)` % had three stay at home orders. The maximum number of stay at home orders per person was `r resultslist$highestQundIproPerson`.  
+
+*Analysis of the duration of isolation quarantines:* The median duration for isolations was `r resultslist$MedianeDauerI["50%"] ` (interquartile range `r resultslist$MedianeDauerI["25%"]` - `r resultslist$MedianeDauerI["75%"] `). The duration did change in between different periods of recommendations. The median of the duration during the recommendation periods were: `r resultslist$MedianeDauerI_Rec %>% filter(I_Duration == "I_Duration_1") %>% select(quint) %>% pull()` for the period No. 1, `r resultslist$MedianeDauerI_Rec %>% filter(I_Duration == "I_Duration_2") %>% select(quint) %>% pull()` for the period No. 2, `r resultslist$MedianeDauerI_Rec %>% filter(I_Duration == "I_Duration_3") %>% select(quint) %>% pull()` for the period No. 3 and `r resultslist$MedianeDauerI_Rec %>% filter(I_Duration == "I_Duration_4") %>% select(quint) %>% pull()` for the period No. 4. The overall median duration for quarantines was `r resultslist$MedianeDauerQ["50%"] ` (interquartile range `r resultslist$MedianeDauerQ["25%"]` - `r resultslist$MedianeDauerQ["75%"] `). The median duration did differ between periods of different recommendations and age groups. The median of the duration during the recommendation periods were: `r resultslist$MedianeDauerQ_Rec %>% filter(Q_Duration == "Q_Duration_1") %>% select(quint) %>% pull()` for the period No. 1, `r resultslist$MedianeDauerQ_Rec %>% filter(Q_Duration == "Q_Duration_2") %>% select(quint) %>% pull()` for the period No. 2, `r resultslist$MedianeDauerQ_Rec %>% filter(Q_Duration == "Q_Duration_3") %>% select(quint) %>% pull()` for the period No. 3 and `r resultslist$MedianeDauerQ_Rec %>% filter(Q_Duration == "Q_Duration_4") %>% select(quint) %>% pull()` for the period No. 4. See figure \@ref(fig:duration). All together the public health agency ordered `r resultslist$totaltime %>% filter(DatensatzKategorie == "COVID-19") %>% pull(completeduration_years) %>%  round()` years of isolations and `r resultslist$totaltime %>% filter(DatensatzKategorie == "Kontakt-COVID-19") %>% pull(completeduration_years) %>% round()` years of quarantine. 
+
+*Analysis of the ratio of contact persons per case:* The overal ratio of contact persons was `r round(resultslist$K_F_Verhaeltnis,2)`. In the period of the contact person defintion no. 1 the ratio was `r resultslist$K_F_Verhaeltnis_QDef %>% filter(q_def == "Q_Def_1") %>% pull(verhaeltnis) ` in the period no. 2 the ratio was `r resultslist$K_F_Verhaeltnis_QDef %>% filter(q_def == "Q_Def_2") %>% pull(verhaeltnis)` and in the period no. 3 the ratio was: `r resultslist$K_F_Verhaeltnis_QDef %>% filter(q_def == "Q_Def_1") %>% pull(verhaeltnis)`. 
+
+*Analysis of isolations following quarantines:* All together `r resultslist$Q_percentage` of quarantines had a following isolation. And `r  resultslist$I_percentage` isolations had a preceeding quarantine. This did differ between different periods and recommendations see figure \@ref(fig:adjoining-quarantines-and-isolation). A total of `r resultslist$isolationduringcontact` quarantines had a following isolation period. With the overall ratio of cases to contacts of `r resultslist$K_F_Verhaeltnis` and assuming of a total prevention of transmission this leads to `r round(resultslist$K_F_Verhaeltnis * resultslist$isolationduringcontact)` directly prevented/delayed cases.
+
+
+## Text for discussion
+The local public health agency Reinickendorf ordered isolations for slightly less than 10\% and quarantines for a bit more than 15\% of the population. This amounts to XXX days per person. The local public health agency of Reinickendorf ordered roughly 1700 years of quarantine in total.
+
+
+# Tables
+```{r totaltime_groups, echo = FALSE}
+set.caption('Total duration of SARS-CoV-2 quarantines and isolations per age and the percentage of each age group from the total.') 
+resultslist$totaltime_groups %>% 
+  mutate(Type = recode_factor(DatensatzKategorie, "COVID-19" = "isolation", "Kontakt-COVID-19" = "quarantine")) %>% 
+  select(Type, 'Age group' = AgeGroup, 'total days' = completeduration_days, 'duration per person' = completeduration_person, 'Share in %' = percentage) %>% 
+  pander()
+```
+
+# Graphs
+
+## Graph timeliness over time
 ```{r}
+# DAs hier sollte noch in die Resultsberechnungen mit rein.
+
+
+
 df %>%
   filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
   mutate(Q_Duration_number = str_split(Q_Duration_shortvalue, " ", simplify = TRUE)[1]) %>%
@@ -164,168 +145,9 @@ df %>%
   summarise(timeliniess = mean(Q_timeliness)) %>%
   ggplot(aes(Meldewoche, timeliniess)) +
   ester_theme() +
-  geom_col()
+  geom_col(fill = brewer.pal(3, mypalette)[2])
 ```
 
-## Numbers of quarantine and isolation
-```{r N_and_incidence}
-# N quarantines
-resultslist$AnzahlQAgegroup <- df %>% filter(DatensatzKategorie == "Kontakt-COVID-19") %>% group_by(AgeGroup) %>% summarise(n = n()) %>% pull(n)
-resultslist$GesamtQ <- sum(resultslist$AnzahlQAgegroup) 
-
-# N isolations
-resultslist$AnzahlIAgegroup <- df %>% filter(DatensatzKategorie == "COVID-19") %>%  group_by(AgeGroup) %>% summarise(n = n()) %>% pull(n)
-resultslist$GesamtI <- sum(resultslist$AnzahlIAgegroup )
-
-# Quarantines by population
-resultslist$AnzahlQproBev <- round(100*resultslist$GesamtQ / demographiedaten %>% summarise(sum(value)) %>% pull(), 1)
-resultslist$AnzahlQproBevAgegroup <- round(100 * resultslist$AnzahlQAgegroup  / demographiedaten$value, 1)
-
-# Isolations by population
-resultslist$AnzahlIproBev <- round(100*resultslist$GesamtI / demographiedaten %>% summarise(sum(value)) %>% pull(),1)
-resultslist$AnzahlIproBevAgegroup <- round(100 * resultslist$AnzahlIAgegroup  / demographiedaten$value, 1)
-
-resultslist$incidence <- df %>% 
-  group_by(AgeGroup, DatensatzKategorie) %>% 
-  summarise(n = n(), .groups = 'drop') %>% 
-  left_join(demographiedaten, by= c("AgeGroup" = "name") ) %>% 
-  rename(N = value) %>% 
-  mutate(incidence = round(100*n/N)) %>% 
-  mutate(DatensatzKategorie = recode_factor(DatensatzKategorie, "COVID-19" = "isolation", "Kontakt-COVID-19" = "quarantine"))
-
-resultslist$incidence_total <- df %>% 
-    group_by(DatensatzKategorie) %>% 
-    summarise(n = n(), .groups = 'drop') %>% 
-    mutate(totalpopulation = demographiedaten %>% summarise(sum(value))) %>% 
-    mutate(incidence = round(100*n/totalpopulation)) 
-
-
-```
-
-The local public health agency Reinickendorf ordered isolations for slightly less than 10\% and quarantines for a bit more than 15\% of the population. This amounts to XXX days per person. The local public health agency of Reinickendorf ordered roughly 1700 years of quarantine in total.
-
-
-
-## Calculate time periods
-```{r calculate_time_periods}
-# Total duration of quarantine and isolation
-resultslist$NQundI <- df %>% summarise(sum(dauer)) %>% pull()
-
-# Quarantine duration
-resultslist$MedianeDauerQ <- df %>% filter(DatensatzKategorie == "Kontakt-COVID-19") %>% summarise(quint = quantile(dauer)) %>% pull()
-resultslist$MedianeDauerQ_Rec <- df %>% 
-  filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
-  group_by(Q_Duration) %>% 
-  summarise(quint = quantile(dauer, probs = 0.5 ), .groups = 'drop') 
-
-# Isolation duration
-resultslist$MedianeDauerI <- df %>% filter(DatensatzKategorie == "COVID-19") %>% summarise(quint = quantile(dauer)) %>% pull()
-resultslist$MedianeDauerI_Rec <- df %>% 
-  filter(DatensatzKategorie == "COVID-19") %>% 
-  group_by(I_Duration) %>% 
-  summarise(quint = quantile(dauer, probs = 0.5 ), .groups = 'drop') 
-
-resultslist$MedianeDauerAbsonderungAgeGroup <- df %>% group_by(DatensatzKategorie, AgeGroup) %>% summarise(quint = quantile(dauer), .groups = 'drop')
-
-
-# total time
-resultslist$totaltime_groups <- df %>% 
-  group_by(DatensatzKategorie, AgeGroup) %>% 
-  summarise(completeduration_days = sum(dauer), completeduration_years = sum(dauer) / 365, .groups = "drop_last") %>% 
-  left_join(demographiedaten, by = c("AgeGroup" = "name")) %>% 
-  mutate(percentage = round(100 * completeduration_days / sum(completeduration_days),1)) %>% 
-  mutate(completeduration_person = round(completeduration_days / value,1)) %>% 
-  ungroup()
-
-resultslist$totaltime <- resultslist$totaltime_groups %>% group_by(DatensatzKategorie) %>% summarise(completeduration_total = round(sum(completeduration_years),1))
-
-# print(resultslist$totaltime)
-```
-
-## Calculate ratio of quarantines to isolations
-```{r quarantines_isolation_ratio}
-resultslist$K_F_Verhaeltnis <- df %>%
-  filter(AbsonderungVon > externalinput$StartDateKP) %>% 
-  filter(AbsonderungVon < externalinput$EndDateKP) %>% 
-  group_by(DatensatzKategorie) %>%
-  summarise(n=n(), .groups = "drop") %>% 
-  pivot_wider(names_from = DatensatzKategorie, values_from = n) %>% 
-  janitor::clean_names() %>% 
-  mutate(verhaeltnis = round(kontakt_covid_19 / covid_19,2)) %>% 
-  pull(verhaeltnis)
-  
-resultslist$K_F_Verhaeltnis_QDef <- df %>%
-  filter(AbsonderungVon > externalinput$StartDateKP) %>% 
-  filter(AbsonderungVon < externalinput$EndDateKP) %>% 
-  group_by(Q_Def, DatensatzKategorie) %>%
-  summarise(n=n(), .groups = "drop") %>% 
-  pivot_wider(names_from = DatensatzKategorie, values_from = n) %>% 
-  janitor::clean_names() %>% 
-  mutate(verhaeltnis = round(kontakt_covid_19 / covid_19,2))
-```
-
-## Quarantines and isolation per person
-```{r quarantines_isolation_per_person}
-resultslist$QundIproPerson <- df %>% 
-  group_by(AnonID) %>% 
-  summarise(n = n()) %>% 
-  count(number = n) %>% 
-  mutate(Percentage= round( n / sum(n) * 100, 1)) 
-  
-resultslist$highestQundIproPerson <- df %>% group_by(AnonID) %>% 
-  summarise(n = n()) %>% 
-  count(number = n) %>% 
-  slice_max(number) %>% 
-  pull(number)
-```
-
-## Find quarantines and isolations that adjoin
-```{r adjoining_quarantines_and_isolation}
-resultslist$ueberlappendeQundI <- df %>%
-  filter(AbsonderungVon > externalinput$StartDateKP & AbsonderungVon < externalinput$EndDateKP) %>% 
-  group_by(DatensatzKategorie, adjoiningQandI, AgeGroup, Q_Def) %>%
-  count() %>% 
-  mutate(result = NA) %>% 
-  mutate(result = ifelse(adjoiningQandI == 0, "I_correct_after_Q", result)) %>% 
-  mutate(result = ifelse(adjoiningQandI > 0, "I_too_long_after_Q", result)) %>% 
-  mutate(result = ifelse(is.na(adjoiningQandI), "No_I_after_Q", result)) 
-
-resultslist$ueberlappendeQundI %>% 
-  filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
-  group_by(Q_Def, result) %>% 
-  summarise(n = sum(n)) %>% 
-  mutate(percentage = prop.table(n)*100)
-
-resultslist$ueberlappendeQundI %>% 
-  filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
-  group_by(AgeGroup, result) %>% 
-  summarise(n = sum(n)) %>% 
-  mutate(percentage = prop.table(n)*100)
-```
-
-## Text for Publication 
-We extracted `r resultslist$queried` datasets from SurvNet. `r resultslist$outofrange[['inrange']]` entries fullfilled the definition `r resultslist$definitionvar[['notdefined']]` had missing dates, `r resultslist$definitionvar[['wrongID']]` entries had an IDs that did not lead to an existing person and `r resultslist$outofrange[['outofrange']]` did not have a beginning of the stay-at-home-order in the study period). We removed `r resultslist$wrongEntries[['typingerror']]` entries because they had a presumed typing error in one of the dates. We also removed `r resultslist$doppeltefaelle ` duplicated isolations and `r resultslist$doppeltekps ` duplicated quarantines. For XXXX quarantines we reduced the length by the overlap with a following isolation period. In the demographic data we found `r demographiedaten %>% summarise(sum(value)) %>% pull() ` inhabitants registered in Berlin Reinickendorf (`r demographiedaten %>% filter(name=="Kleiner7") %>% pull(value) ` in the age group <7; `r demographiedaten %>% filter(name=="Von7Bis17") %>% pull(value) ` in the age group 7-17; `r demographiedaten %>% filter(name=="Von18bis65") %>% pull(value) ` in the age group 18-64 and `r demographiedaten %>% filter(name=="Groesser64") %>% pull(value) ` in the age group >64).
-
-*Analysis of quantity of isolation and quarantines:*  The local public health institute Reinickendorf von  Berlin did order `r resultslist$GesamtI ` isolations and `r resultslist$GesamtQ` quarantines. This amounts to a percentage of `r round(resultslist$GesamtI * 100 / demographiedaten %>% summarise(sum(value)),1) %>% pull()` isolations and `r round(resultslist$GesamtQ * 100 / demographiedaten %>% summarise(sum(value)) %>% pull(),1) ` quarantines of inhabitants. The number of isolations per 100 people in each age group was:  `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "< 7") %>% pull(incidence) %>% round()` <7, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "7 to 17") %>% pull(incidence) %>% round()` 7-17, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == "18 to 64") %>% pull(incidence) %>% round()` 18-64, `r resultslist$incidence %>% filter(DatensatzKategorie == "isolation" & AgeGroup == " > 64") %>% pull(incidence) %>% round()` >64. The number of quarantines per 100 people in each age group was:  `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "< 7") %>% pull(incidence) %>% round()` in the age group <7, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "7 to 17") %>% pull(incidence) %>% round()` in the age group 7-17, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == "18 to 64") %>% pull(incidence) %>% round()` in the age group 18-64, `r resultslist$incidence %>% filter(DatensatzKategorie == "quarantine" & AgeGroup == " > 64") %>% pull(incidence) %>% round()` in the age group >64 (see figure \@ref(fig:incidence)). `r resultslist$QundIproPerson %>% filter(number==1) %>% pull(Percentage)` % of persons had one stay at home order (quarantine or isolation), `r resultslist$QundIproPerson %>% filter(number==2) %>% pull(Percentage)` % had two stay at home orders and `r resultslist$QundIproPerson %>% filter(number==3) %>% pull(Percentage)` % had three stay at home orders. The maximum number of stay at home orders per person was `r resultslist$highestQundIproPerson`.  
-
-*Analysis of the duration of isolation quarantines:* The median duration for isolations was `r resultslist$MedianeDauerI["50%"] ` (interquartile range `r resultslist$MedianeDauerI["25%"]` - `r resultslist$MedianeDauerI["75%"] `). The duration did change in between different periods of recommendations. The median of the duration during the recommendation periods were: `r resultslist$MedianeDauerI_Rec %>% filter(I_Duration == "I_Duration_1") %>% select(quint) %>% pull()` for the period No. 1, `r resultslist$MedianeDauerI_Rec %>% filter(I_Duration == "I_Duration_2") %>% select(quint) %>% pull()` for the period No. 2, `r resultslist$MedianeDauerI_Rec %>% filter(I_Duration == "I_Duration_3") %>% select(quint) %>% pull()` for the period No. 3 and `r resultslist$MedianeDauerI_Rec %>% filter(I_Duration == "I_Duration_4") %>% select(quint) %>% pull()` for the period No. 4. The overall median duration for quarantines was `r resultslist$MedianeDauerQ["50%"] ` (interquartile range `r resultslist$MedianeDauerQ["25%"]` - `r resultslist$MedianeDauerQ["75%"] `). The median duration did differ between periods of different recommendations and age groups. The median of the duration during the recommendation periods were: `r resultslist$MedianeDauerQ_Rec %>% filter(Q_Duration == "Q_Duration_1") %>% select(quint) %>% pull()` for the period No. 1, `r resultslist$MedianeDauerQ_Rec %>% filter(Q_Duration == "Q_Duration_2") %>% select(quint) %>% pull()` for the period No. 2, `r resultslist$MedianeDauerQ_Rec %>% filter(Q_Duration == "Q_Duration_3") %>% select(quint) %>% pull()` for the period No. 3 and `r resultslist$MedianeDauerQ_Rec %>% filter(Q_Duration == "Q_Duration_4") %>% select(quint) %>% pull()` for the period No. 4. See figure \@ref(fig:duration). All together the public health agency ordered `r resultslist$totaltime %>% filter(DatensatzKategorie == "COVID-19") %>% pull(completeduration_total)` years of isolations and `r resultslist$totaltime %>% filter(DatensatzKategorie == "Kontakt-COVID-19") %>% pull(completeduration_total)` years of quarantine. 
-
-*Analysis of the ratio of contact persons per case:* The overal ratio of contact persons was `r round(resultslist$K_F_Verhaeltnis,2)`. In the period of the contact person defintion no. 1 the ratio was `r resultslist$K_F_Verhaeltnis_QDef %>% filter(q_def == "Q_Def_1") %>% pull(verhaeltnis) ` in the period no. 2 the ratio was `r resultslist$K_F_Verhaeltnis_QDef %>% filter(q_def == "Q_Def_2") %>% pull(verhaeltnis)` and in the period no. 3 the ratio was: `r resultslist$K_F_Verhaeltnis_QDef %>% filter(q_def == "Q_Def_1") %>% pull(verhaeltnis)`. 
-
-*Analysis of isolations following quarantines:* All together `r resultslist$Q_percentage` of quarantines had a following isolation. And `r  resultslist$I_percentage` isolations had a preceeding quarantine. This did differ between different periods and recommendations see figure \@ref(fig:adjoining-quarantines-and-isolation). A total of `r resultslist$isolationduringcontact` quarantines had a following isolation period. With the overall ratio of cases to contacts of `r resultslist$K_F_Verhaeltnis` and assuming of a total prevention of transmission this leads to `r round(resultslist$K_F_Verhaeltnis * resultslist$isolationduringcontact)` directly prevented/delayed cases.
-
-
-# Tables
-```{r totaltime_groups, echo = FALSE}
-set.caption('Total duration of SARS-CoV-2 quarantines and isolations per age and the percentage of each age group from the total.') 
-resultslist$totaltime_groups %>% 
-    mutate(AgeGroup = recode_factor(AgeGroup,  "Kleiner7" = "< 7", "Von7Bis17" = "7 to 17", "Von18bis65" = "18 to 64", "Groesser64" = " > 64")) %>% 
-  mutate(Type = recode_factor(DatensatzKategorie, "COVID-19" = "isolation", "Kontakt-COVID-19" = "quarantine")) %>% 
-  select(Type, 'Age group' = AgeGroup, 'duration (d)' = completeduration_days, 'duration per person' = completeduration_person, 'Share in %' = percentage) %>% 
-  pander()
-```
-
-# Graphs
 
 ## Graph: Incidence 
 ```{r incidence, fig.height= 3, fig.cap=paste("Incidence per 1000 of quarantines and isolations for inhabitants of Reinickendorf, Berlin between",  externalinput$StartDate, "and", externalinput$EndDate), error=FALSE, message=FALSE, warning=FALSE}

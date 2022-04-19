@@ -72,6 +72,9 @@ de_duplication <- function(df, methodslist = methodslist) {
   doppelte_faelle_df_bereinigt <- bind_rows(map(doppelte_faelle, ~overlapcheck_concise(data_input = doppelte_faelle_df, testsubject = .x, pair = pairslist)))
   doppelte_kps_df_bereinigt <- bind_rows(map(doppelte_kps, ~overlapcheck_concise(data_input = doppelte_kps_df, testsubject = .x, pair = pairslist)))
   
+  
+  df <- bind_rows(doppelte_faelle_df_bereinigt, doppelte_kps_df_bereinigt, einzelne_faelle_df, einzelne_kps_df) %>% ungroup()
+  
   # Saving for the publication
   output_list <- list("doppelte_faelle_df" = doppelte_faelle_df, 
                       "doppelte_kps_df" = doppelte_kps_df, 
@@ -104,13 +107,61 @@ list_to_df_after_deduplication <- function(list_deduplicated){
   einzelne_faelle_df <- list_deduplicated$einzelne_faelle_df
   einzelne_kps_df <- list_deduplicated$einzelne_kps_df
   
-  df <- bind_rows(doppelte_faelle_df_bereinigt, doppelte_kps_df_bereinigt, einzelne_faelle_df, einzelne_kps_df) %>% ungroup()
 }
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Adjust_overlap
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+# The following variantes are possible
+# 1 
+# KP   |----|
+#> Case |----|
+#> Filter min(kp)>=min(case)
+# result should be:  delete(KP)
+# 2
+# KP      |----|
+#> Case |----|
+#> Filter min(kp)>=min(case)
+# result should be: delete(kp)
+# 4
+# KP    |--|
+#> Case |----|
+#> Filter min(kp)>=min(case)
+# result should be:  delete(KP) 
+# 6
+# KP   |--|
+#> Case |----|
+#> Filter min(kp)>=min(case)
+# result should be: delete(KP)
+# KP   |----|
+#> Case |--|
+#> Filter min(kp)>=min(case) 
+# result should be: delete(kp)
+# 8
+# KP    |---|
+#> Case |----|
+#> Filter min(kp)>=min(case)
+# result should be: delete(kp)
+# 3
+# KP   |----|
+#> Case    |----|
+#> Filter min(kp)<min(case)
+# result should be:  min(KP) - min(Case)
+# 5
+# KP   |----|
+#> Case  |--|
+#> Filter min(kp)<min(case)
+# result should be: min(KP) - min(case)
+# 9
+# KP   |----|
+#> Case  |---|
+#> Filter min(kp)<min(case)
+# result should be: min(kp) - min(case)
+
+
 
 # This function checks for overlap and adjusts the quarantine if needed
 adjustoverlapquarantine <- function(data_input, pair) {
@@ -170,22 +221,6 @@ adjust_overlap <- function(df_deduplicated){
   
   df
 }
-# 
-# get_info_about_overlapadjust <- function(list_overlapadjusted){
-#   einzelne_anonIDs_df <- list_overlapadjusted$einzelne_anonIDs_df
-#   doppelte_anonIDs_df <- list_overlapadjusted$doppelte_anonIDs_df
-#   doppelte_anonIDs_df_bereinigt <- list_overlapadjusted$doppelte_anonIDs_df_bereinigt
-#   results_overlapadjust <- list()
-#   results_overlapadjust$ueberlappendeFalleKP <- nrow(doppelte_anonIDs_df) - nrow(doppelte_anonIDs_df_bereinigt) 
-#   saveRDS(results_overlapadjust, file = "data/results/info_about_overlapadjust.rds")
-#   "data/results/info_about_overlapadjust.rds"
-# }
-# 
-# list_to_df_after_overlapadjust <- function(list_overlapadjusted){
-#   einzelne_anonIDs_df <- list_overlapadjusted$einzelne_anonIDs_df
-#   doppelte_anonIDs_df_bereinigt <- list_overlapadjusted$doppelte_anonIDs_df_bereinigt
-#   df <- bind_rows(doppelte_anonIDs_df_bereinigt, einzelne_anonIDs_df) %>% ungroup()
-# }
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -255,5 +290,15 @@ find_adjoin <- function(df_overlapped) {
 
 
 final_cleaning <- function(df_adjoined, externalinput){
-  df <- df_adjoined %>% left_join(externalinput$zeiten, by = c("AbsonderungVon" = "dates"))
+  df <- df_adjoined %>% 
+    left_join(externalinput$zeiten, by = c("AbsonderungVon" = "dates")) %>% 
+    mutate(Meldemonat = paste(year(AbsonderungVon), format.Date(AbsonderungVon, "%m"), sep = "_")) %>% 
+    mutate(Meldewoche = paste(year(AbsonderungVon), format.Date(AbsonderungVon, "%W"), sep = "_")) %>% 
+    mutate(dauer = as.numeric(AbsonderungBis - AbsonderungVon)) %>% 
+    select(-abstandVonBis, abstandMeldedatumVon, -Q_Def_value, -Q_Def_url, -I_Duration_value, -I_Duration_url, -Q_Duration_value, -Q_Duration_url) %>% 
+    mutate(result = NA) %>% 
+    mutate(result = ifelse(adjoiningQandI == 0, "I_correct_after_Q", result)) %>% 
+    mutate(result = ifelse(adjoiningQandI > 0, "I_too_long_after_Q", result)) %>% 
+    mutate(result = ifelse(is.na(adjoiningQandI), "No_I_after_Q", result)) %>% 
+    mutate(result = ifelse(AbsonderungVon < externalinput$StartDateKP | AbsonderungVon > externalinput$EndDateKP, "Not_applicable", result)) 
 }

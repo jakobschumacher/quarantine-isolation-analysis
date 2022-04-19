@@ -4,6 +4,7 @@ adjoincheck_concise|function|12230afdcf502e65|||||||||||||||
 adjust_overlap|function|1a5472ea69d13eb3|||||||||||||||
 adjustoverlapquarantine|function|0132c6e56402f477|||||||||||||||
 adjustoverlapquarantine_concise|function|eec6078c4530840c|||||||||||||||
+checkanonids|function|097bdd94eadf801a|||||||||||||||
 create_pairslist|function|1ae59674df99ecf1|||||||||||||||
 data|stem|7b6384cea6f1e07c|d6b4fc70aab8c2a4|d57ad0cbc32d9679|1588979285||t19096.4915551686s|ff9fa687aed85f9a|15356|rds|local|vector|||0.073||
 data_demographie_file|stem|5b7b3a9cb1816e1c|87162bb40a3c2dc1|ef46db3751d8e999|40046498|data/EWR202012E_Matrix.csv|t19039.7401617913s|91f17ce84801be7b|89259|file|local|vector|||0.001||
@@ -12,24 +13,26 @@ data_survnet_file|stem|e4f16cd0fb789eaf|2b35939b5cb590f0|ef46db3751d8e999|-41263
 de_duplication|function|6023f1fc0baf1eb3|||||||||||||||
 demographiedata|stem|7bdd9854a7acc620|bf2bb9e222b75c2f|5f5e95af310a5042|528133239||t19096.4957189033s|0eb7ad5ce87b6af8|200|rds|local|vector|||0.162||
 demographiedaten|stem|7bdd9854a7acc620|fc7eaba745e6695f|addfc5523f1ee7bb|1704579895||t19097.541422562s|0eb7ad5ce87b6af8|200|rds|local|vector|||0.161||
-df|stem|b782b82f6d2a5323|d37d037ffb1d3196|a8121e55f53986bf|-1046211958||t19098.6610908813s|c669e4c50d0e9027|3204945|rds|local|vector|||0.015||
-df_adjoined|stem|013a1c8a730f63fe|7d6330bbc23c4d0f|3e6757696a258694|565551907||t19098.661075511s|4e548131920c928b|1228689|rds|local|vector|||191.676||
-df_deduplicated|stem|fe3811a7dbb444d0|52b17dae2bec4d82|a476d09d03517dcc|-1388746842||t19097.4194258945s|c7066edbae628850|1220165|rds|local|vector|||0.238||
-df_filtered|stem|f58ca70063a9b356|9e8c5a888869014a|f0086d66a099d178|876409938||t19096.5335788956s|10a41352b8390681|1196282|rds|local|vector|||0.238||
+df|stem|1de3daaef6f4f9a7|d37d037ffb1d3196|36d104f3073e7eb3|-1046211958||t19098.753444251s||1347863|rds|local|vector|||0.197||Cant subset columns that dont exist.31mx39m Column abstandVonBis doesnt exist.
+df_adjoined|stem|4236544f0b9977bf|7d6330bbc23c4d0f|a887e2390ab24c43|565551907||t19101.4976280301s|1bfa5ee31d39cd1d|665126|rds|local|vector|||111.133||
+df_deduplicated|stem|3543d3ac2ebf3c87|52b17dae2bec4d82|069d073fd76aceaf|-1388746842||t19101.4946864917s|894c0b9e828f041b|667494|rds|local|vector|||0.079||
+df_filtered|stem|9c20946928a06cff|1b9b1fd2a971d8d9|183a8cc1f71266b5|876409938||t19101.4921951392s|b9e72f5692d96b3c|673697|rds|local|vector|||0.022||
 df_filtered_e30e8dd8|branch||7a66fabaffb4d822|906d75529ab18fe1|-975908508||t19096.5105330356s||0|rds|local|vector|df_filtered||0.12||1m22mProblem while computing definitionvar  ifelseAnonID externalinputwrong_id, wrongID, definitionvar.1mCaused by error in 1m1mifelse22m33m39m Objekt externalinput nicht gefunden
-df_overlapped|stem|1e1ffc7280e3c8cf|f77825c5b0ff5ffd|1e1a69a7b757e1d0|242351176||t19098.6588535633s|aff80fec7b5f2a32|1219284|rds|local|vector|||239.3||
-df_raw|stem|ba13d5cd00969046|bc8fdd8936684d75|7eaeb89559c3c933|666883541||t19097.3682094417s|46a0a119a637134d|1152843|rds|local|vector|||0.683||
+df_overlapped|stem|e7ce7d491df77f18|f77825c5b0ff5ffd|e82ef5af1cd4d631|242351176||t19101.4963400631s|61e4aae1986339ac|657837|rds|local|vector|||142.722||
+df_prefiltered|stem|1764fb5a3118402a|968cdf60f73a5f9b|ec75c810c0c98b5a|1550807775||t19101.4921932874s|44c0140ad2bc2388|1007282|rds|local|vector|||0.355||
+df_raw|stem|d260bbb3f2e1a201|bc8fdd8936684d75|8f3adc4cb2253bb2|666883541||t19101.4921856485s|accc92deebdbc2d5|751139|rds|local|vector|||0.367||
 externalinput|stem|7b6384cea6f1e07c|d6b4fc70aab8c2a4|d57ad0cbc32d9679|839244936||t19096.4920355995s|ff9fa687aed85f9a|15356|rds|local|vector|||0.071||
 filter|function|bbdc6a5bb4a2ad22|||||||||||||||
-filtering_the_dataset|function|c9b4378b20f6bdde|||||||||||||||
-final_cleaning|function|05e0bbfdca0a836d|||||||||||||||
+filtering_the_dataset|function|d7efaa9e0fba0688|||||||||||||||
+final_cleaning|function|afd05166cbe61ae8|||||||||||||||
 find_adjoin|function|635151134b468af1|||||||||||||||
 get_filtered_variables|function|55f99c4463e9b149|||||||||||||||
 get_info_about_deduplication|function|623128864517d856|||||||||||||||
 get_info_about_filtering|function|ac57972b4c0695db|||||||||||||||
 get_info_about_overlapadjust|function|33bed0d876651787|||||||||||||||
+get_numerical_results|function|baf2ce32c390f4c6|||||||||||||||
 list_adjoined|stem|cb22d985c4225c40|7d6330bbc23c4d0f|38467c610dfe5a0c|-456557775||t19097.5294363895s|d511accc4f3b59e9|1216085|rds|local|vector|||192.985||
-list_deduplicated|stem|a2cf0bde75a58737|10657289b4e77b86|8fbce751e813b025|-1761022413||t19097.3874514278s|910101bf7626aac7|1599556|rds|local|vector|||286.73||
+list_deduplicated|stem|aee53f439f255fac|10657289b4e77b86|2abbbd6218b5dcb7|-1761022413||t19101.4946838065s|64144bb89e411b50|902433|rds|local|vector|||214.844||
 list_overlapadjusted|stem|0060b9cfa324bfc0|f77825c5b0ff5ffd|83f50d0c8d6e1082|1119172119||t19097.4320165703s||1877715|rds|local|vector|||2.562||Objekt breakasdf nicht gefunden
 list_to_df_after_deduplication|function|5a2ea58c092a1768|||||||||||||||
 list_to_df_after_overlapadjust|function|a334f3c0abfa5904|||||||||||||||
@@ -39,11 +42,11 @@ overlapcheck_concise|function|e06b2048185ce4d6|||||||||||||||
 overlapcheck_pairs|function|1b362d5090d3244a|||||||||||||||
 read_demographiedata|function|6ce8849de01afbec|||||||||||||||
 read_externalinput|function|337b2543ed18d083|||||||||||||||
-read_survnetdata|function|453748d17e179394|||||||||||||||
-results|stem|53673accd03f20ff|edf29864478b8e3b|1f1b48b4ec32c47f|1767768831|data/results.csv|t19096.647441812s|ad60122b922747b6|14|file|local|vector|||0.086||
+read_survnetdata|function|50aa2adae2380644|||||||||||||||
+results|stem|80ec108af301adcb|55233a28dea24c09|99ce3efba12cdd98|1767768831||t19101.460209752s|4f7108de728dd56a|319|rds|local|vector|||3.497||
 rows_to_be_filtered|stem|e69f3e9eb6672c2b|968cdf60f73a5f9b|2e755f4808ddae41|-362979249||t19096.5302274506s|5a189bef2aa8e90f|55966|rds|local|vector|||0.349||
-set_filter|function|ac3d1affcd0c4c29|||||||||||||||
-store_info_about_deduplication|stem|d3e17322009874a4|66d55a5e8583efe4|88c7d373105473a9|-680271893|data/results/info_about_deduplication.rds|t19097.5140710718s|241bf920421d9078|105|file|local|vector|||0.007||
+set_filter|function|a939326ee6b70ea2|||||||||||||||
+store_info_about_deduplication|stem|c31669149ecb1774|66d55a5e8583efe4|3f55ed8c50440352|-680271893|data/results/info_about_deduplication.rds|t19101.4946839454s|241bf920421d9078|105|file|local|vector|||0.007||
 store_info_about_filtering|stem|a0c8cd5ee81823b2|dbacf633a4011165|f8a0f8fe851f33e4|1178336063|data/results/info_about_filtering.rds|t19097.3762539774s|f2a5e99bcf184b36|287|file|local|vector|||0.076||
 store_info_about_overlapadjusted|stem|cc56857f0e754c54|6832cf647cad6766|14ad64a3738fd678|-1719436601|data/results/info_about_overlapadjust.rds|t19097.5142471853s|f0d5811415b6b792|97|file|local|vector|||0.001||
 summ|function|725b50cbf04a3ed2|||||||||||||||

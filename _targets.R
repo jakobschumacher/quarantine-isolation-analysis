@@ -3,9 +3,9 @@ library(targets)
 tar_option_set(workspace_on_error = TRUE)
 
 source("code/external_input.R")
-source("code/reading_functions.R")
-source("code/filtering_functions.R")
+source("code/reading_filtering_functions.R")
 source("code/transforming_functions.R")
+source("code/calculating_results.R")
 
 
 # End this file with a list of target objects.
@@ -19,9 +19,8 @@ list(
   tar_target(df_raw, read_survnetdata(data_survnet_file)),
   tar_target(demographiedaten, tidy_demographiedata(data_demographie_file)),
   # Filtering
-  tar_target(rows_to_be_filtered, set_filter(df_raw, externalinput)),
-  tar_target(store_info_about_filtering, get_info_about_filtering(rows_to_be_filtered), format = "file"),
-  tar_target(df_filtered, filtering_the_dataset(df_raw, rows_to_be_filtered)),
+  tar_target(df_prefiltered, set_filter(df_raw, externalinput)),
+  tar_target(df_filtered, filtering_the_dataset(df_prefiltered)),
   # Deduplication
   tar_target(list_deduplicated, de_duplication(df_filtered)),
   tar_target(store_info_about_deduplication, get_info_about_deduplication(list_deduplicated), format = "file"),
@@ -31,6 +30,8 @@ list(
   # Find adjoining quarantines and isolations
   tar_target(df_adjoined, find_adjoin(df_overlapped)),
   # Final cleaning
-  tar_target(df, final_cleaning(df_adjoined, externalinput))
+  tar_target(df, final_cleaning(df_adjoined, externalinput)),
+  # Numerical results
+  tar_target(results, get_numerical_results(df, demographiedaten, externalinput))
 
 )

@@ -115,3 +115,13 @@ externalinput$zeiten <- tibble(dates =seq(externalinput$StartDate, externalinput
 
 externalinput
 }
+
+########################################################
+# Create a check function for testing purposes
+########################################################
+checkanonids <- function(){
+  # df %>% count(AnonID) %>% filter(n>3) %>% pull(AnonID)
+  print(df %>% filter(AnonID=="ID021580"))
+  print(df %>% filter(AnonID == "ID037188"))
+  print(df %>% filter(AnonID == "ID015472"))
+}
