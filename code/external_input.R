@@ -7,7 +7,8 @@ externalinput <- list()
 # Special dates
 ########################################################
 externalinput$StartDate <- dmy("03.03.2020")
-externalinput$EndDate <- dmy("18.12.2021")
+externalinput$EndDate <- dmy("18.12.2021") 
+externalinput$EndDatePlus14 <- dmy("18.12.2021") + 14
 externalinput$StartDateKP <- dmy("25.05.2020")
 externalinput$EndDateKP <- dmy("18.12.2021")
 
@@ -43,7 +44,7 @@ Q_Duration <- bind_rows(
     Q_Duration_url = "https://web.archive.org/web/20210217232253/https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Kontaktperson/Management.html"
   ),
   tibble(
-    dates = seq(dmy("09.09.2021"),externalinput$EndDate+14, by=1), 
+    dates = seq(dmy("09.09.2021"),externalinput$EndDatePlus14, by=1), 
     Q_Duration = "Q_Duration_4",
     Q_Duration_value = "10 Tage Quarantäne ohne abschließenden Test. 5 Tage mit PCR-Test bei Probenentnahme frühestens am 5. Tag. Bei Personen, die regelmäßig im Rahmen einer seriellen Teststrategie getestet werden (z.B. Schülerinnen und Schüler), kann der negative Nachweis auch mittels qualitativ hochwertigen Antigen-Schnelltests erwogen werden. 7 Tage mit Antigen-Schnelltest bei Probenentnahme frühestens am 7. Tag.",
     Q_Duration_shortvalue = "10 Tage Quarantäne ohne abschließenden Test, 5 Tage mit PCR-Test bei Probenentnahme frühestens am 5. Tag. 7 Tage mit Antigen-Schnelltest",
@@ -70,7 +71,7 @@ I_Duration <- bind_rows(
     I_Duration_url = "https://web.archive.org/web/20200715191510/https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Entlassmanagement.html"
   ),
   tibble(
-    dates = seq(dmy("31.03.2021"),externalinput$EndDate+14, by=1)  ,
+    dates = seq(dmy("31.03.2021"),externalinput$EndDatePlus14, by=1)  ,
     I_Duration = "I_Duration_3",
     I_Duration_value = "Für Patienten mit leichtem oder mildem/ moderatem Krankheitsverlauf (gemäß WHO-Definition) und ungestörter Immunkompetenz kann eine Entisolierung erfolgen, wenn (1) mindestens 14 Tage seit Auftreten der ersten Symptome verstrichen sind, (2) eine nachhaltige Besserung der akuten COVID-19-Symptomatik gemäß ärztlicher Beurteilung seit >48 h vorliegt und (3) ein negativer Antigentest.",
     I_Duration_shortvalue  = "14 Tage Isolierung",
@@ -97,7 +98,7 @@ Q_Def <- bind_rows(
     Q_Def_url  = "https://web.archive.org/web/20210407214300/https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Kontaktperson/Management.html"  
   ),
   tibble(
-    dates =  seq(dmy("20.05.2021"), externalinput$EndDate, by=1),
+    dates =  seq(dmy("20.05.2021"), externalinput$EndDatePlus14, by=1),
     Q_Def = "Q_Def_3",
     Q_Def_value = "    Enger Kontakt (<1,5 m, Nahfeld) länger als 10 Minuten ohne adäquaten Schutz# (adäquater Schutz = Fall und Kontaktperson tragen durchgehend und korrekt MNS [Mund-Nasen-Schutz] oder FFP2-Maske). Gespräch mit dem Fall (Face-to-face-Kontakt, <1,5 m, unabhängig von der Gesprächsdauer) ohne adäquaten Schutz# (adäquater Schutz = Fall und Kontaktperson tragen durchgehend und korrekt MNS [Mund-Nasen-Schutz] oder FFP2-Maske) oder direkter Kontakt (mit respiratorischem Sekret). Gleichzeitiger Aufenthalt von Kontaktperson und Fall im selben Raum mit wahrscheinlich hoher Konzentration infektiöser Aerosole unabhängig vom Abstand für > 10 Minuten, auch wenn durchgehend und korrekt MNS (Mund-Nasen-Schutz) oder FFP2-Maske getragen wurde. \n Coronavirus-Update (Internes Dokument des Gesundheitsamtes Reinickendorf): Umgang mit Kontaktpersonen in Schulen Wenn wir einen Fall in einer Schulklasse hatten, wird die gesamte Klasse über eine Fernfeldübertragung nur noch bei den folgenden Konstellationen in Quarantäne gesteckt: 1) Es sind schon Übertragungen in der Klasse in der zu bewertenden Situation bekannt geworden 2) Es wurde gar nicht gelüftet und die Zeit zusammen im Raum war über 2h. 3) Sonderfälle, bei dem grob viele Hygieneregeln missachtet wurden, nach Rücksprache. Davon unbenommen bleibt aber, dass die Personen durch eine Nahfeldübertragung Kontaktpersonen geworden sind. Zum Beispiel die besten Kumpels in der Klasse, die eng sitzenden Sitznachbarn, die Erziehungskraft, die das Kind ganz eng betreut hat.",
     Q_Def_shortvalue  = "10 min. + Indidividual children + Unvaccinated dont have to go",
@@ -108,7 +109,7 @@ Q_Def <- bind_rows(
 ########################################################
 # Join the time periods
 ########################################################
-externalinput$zeiten <- tibble(dates =seq(externalinput$StartDate, externalinput$EndDate, by = 1)) %>% 
+externalinput$zeiten <- tibble(dates = seq(externalinput$StartDate, externalinput$EndDatePlus14, by = 1)) %>% 
   left_join(Q_Def, by = "dates") %>% 
   left_join(I_Duration, by = "dates") %>% 
   left_join(Q_Duration, by = "dates")
@@ -125,3 +126,4 @@ checkanonids <- function(){
   print(df %>% filter(AnonID == "ID037188"))
   print(df %>% filter(AnonID == "ID015472"))
 }
+

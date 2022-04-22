@@ -6,6 +6,7 @@ source("code/external_input.R")
 source("code/reading_filtering_functions.R")
 source("code/transforming_functions.R")
 source("code/calculating_results.R")
+source("code/graphs_tables.R")
 
 
 # End this file with a list of target objects.
@@ -22,16 +23,19 @@ list(
   tar_target(df_prefiltered, set_filter(df_raw, externalinput)),
   tar_target(df_filtered, filtering_the_dataset(df_prefiltered)),
   # Deduplication
-  tar_target(list_deduplicated, de_duplication(df_filtered)),
-  tar_target(store_info_about_deduplication, get_info_about_deduplication(list_deduplicated), format = "file"),
-  tar_target(df_deduplicated, list_to_df_after_deduplication(list_deduplicated)),
+  tar_target(df_deduplicated, de_duplication(df_filtered)),
   # Adjust overlap
   tar_target(df_overlapped, adjust_overlap(df_deduplicated)),
   # Find adjoining quarantines and isolations
   tar_target(df_adjoined, find_adjoin(df_overlapped)),
   # Final cleaning
   tar_target(df, final_cleaning(df_adjoined, externalinput)),
-  # Numerical results
-  tar_target(results, get_numerical_results(df, demographiedaten, externalinput))
+  # numerical results
+  tar_target(results, get_numerical_results(df, demographiedaten, externalinput)),
+  # graphs
+  tar_target(plot_incidence, create_figure_incidence(df, demographiedaten), format = "file"),
+  tar_target(plot_duration, create_figure_duration(df, demographiedaten), format = "file"),
+  tar_target(plot_adjoining, create_figure_adjoining(df, demographiedaten, resultslist, externalinput), format = "file"),
+  tar_target(plot_epicurve, create_figure_epicurve(df, demographiedaten, resultslist, externalinput), format = "file")
 
 )

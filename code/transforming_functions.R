@@ -64,7 +64,6 @@ de_duplication <- function(df, methodslist = methodslist) {
   einzelne_faelle_df <- faelle %>% filter(AnonID %in% einzelne_faelle)
   doppelte_faelle_df <- faelle %>% filter(AnonID %in% doppelte_faelle)
   
-  
   # Create pairslist
   pairslist <- create_pairslist()
   
@@ -72,43 +71,9 @@ de_duplication <- function(df, methodslist = methodslist) {
   doppelte_faelle_df_bereinigt <- bind_rows(map(doppelte_faelle, ~overlapcheck_concise(data_input = doppelte_faelle_df, testsubject = .x, pair = pairslist)))
   doppelte_kps_df_bereinigt <- bind_rows(map(doppelte_kps, ~overlapcheck_concise(data_input = doppelte_kps_df, testsubject = .x, pair = pairslist)))
   
-  
   df <- bind_rows(doppelte_faelle_df_bereinigt, doppelte_kps_df_bereinigt, einzelne_faelle_df, einzelne_kps_df) %>% ungroup()
-  
-  # Saving for the publication
-  output_list <- list("doppelte_faelle_df" = doppelte_faelle_df, 
-                      "doppelte_kps_df" = doppelte_kps_df, 
-                      "doppelte_faelle_df_bereinigt" = doppelte_faelle_df_bereinigt, 
-                      "doppelte_kps_df_bereinigt" = doppelte_kps_df_bereinigt, 
-                      "einzelne_faelle_df" = einzelne_faelle_df, 
-                      "einzelne_kps_df" = einzelne_kps_df) 
-  output_list
-}
 
-get_info_about_deduplication <- function(list_deduplicated){
-  doppelte_faelle_df <- list_deduplicated$doppelte_faelle_df
-  doppelte_kps_df <- list_deduplicated$doppelte_kps_df
-  doppelte_faelle_df_bereinigt <- list_deduplicated$doppelte_faelle_df_bereinigt
-  doppelte_kps_df_bereinigt <- list_deduplicated$doppelte_kps_df_bereinigt
-  einzelne_faelle_df <- list_deduplicated$einzelne_faelle_df
-  einzelne_kps_df <- list_deduplicated$einzelne_kps_df
-  
-  results_deduplication <- list()
-  results_deduplication$doppeltefaelle <- nrow(doppelte_faelle_df) - nrow(doppelte_faelle_df_bereinigt)
-  results_deduplication$doppeltekps <- nrow(doppelte_kps_df) - nrow(doppelte_kps_df_bereinigt) 
-  
-  saveRDS(results_deduplication, file = "data/results/info_about_deduplication.rds")
-  "data/results/info_about_deduplication.rds"
 }
-
-list_to_df_after_deduplication <- function(list_deduplicated){
-  doppelte_faelle_df_bereinigt <- list_deduplicated$doppelte_faelle_df_bereinigt
-  doppelte_kps_df_bereinigt <- list_deduplicated$doppelte_kps_df_bereinigt
-  einzelne_faelle_df <- list_deduplicated$einzelne_faelle_df
-  einzelne_kps_df <- list_deduplicated$einzelne_kps_df
-  
-}
-
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Adjust_overlap
@@ -231,7 +196,7 @@ adjoincheck <- function(data_input, pair) {
   i <- pair[1] # this is number one
   j <- pair[2] # this is number two
   # what counts as adjoining 
-  adjoiningwhentimedifference <- seq(0,6) 
+  adjoiningwhentimedifference <- seq(0,7) 
   twoafterone <- data_input$AbsonderungVon[j] - data_input$AbsonderungBis[i]  # if one after two its positive
   oneaftertwo <- data_input$AbsonderungVon[i] - data_input$AbsonderungBis[j] # if two after one its positive
   if(data_input$DatensatzKategorie[i] == "COVID-19" & data_input$DatensatzKategorie[j] == "Kontakt-COVID-19") {
@@ -288,14 +253,17 @@ find_adjoin <- function(df_overlapped) {
   df <- bind_rows(doppelte_anonIDs_df_bereinigt, einzelne_anonIDs_df)
 }
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Final cleaning
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 final_cleaning <- function(df_adjoined, externalinput){
-  df <- df_adjoined %>% 
-    left_join(externalinput$zeiten, by = c("AbsonderungVon" = "dates")) %>% 
+  df_adjoined %>% 
+    left_join(externalinput$zeiten, by = c("AbsonderungVon" = "dates")) %>%
     mutate(Meldemonat = paste(year(AbsonderungVon), format.Date(AbsonderungVon, "%m"), sep = "_")) %>% 
     mutate(Meldewoche = paste(year(AbsonderungVon), format.Date(AbsonderungVon, "%W"), sep = "_")) %>% 
     mutate(dauer = as.numeric(AbsonderungBis - AbsonderungVon)) %>% 
-    select(-abstandVonBis, abstandMeldedatumVon, -Q_Def_value, -Q_Def_url, -I_Duration_value, -I_Duration_url, -Q_Duration_value, -Q_Duration_url) %>% 
+    select(-Q_Def_value, -Q_Def_url, -I_Duration_value, -I_Duration_url, -Q_Duration_value, -Q_Duration_url) %>% 
     mutate(result = NA) %>% 
     mutate(result = ifelse(adjoiningQandI == 0, "I_correct_after_Q", result)) %>% 
     mutate(result = ifelse(adjoiningQandI > 0, "I_too_long_after_Q", result)) %>% 

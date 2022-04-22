@@ -1,0 +1,593 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Covid-19 isolation and quarantine orders in a district of Berlin, Germany How many, how long, to whom and predictive factors},
+  pdfauthor={Jakob Schumacher, Lisa Kühne, Sophie Bruessermann, Benjamin Geisler, Sonja Jäckle},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{colortbl}
+\usepackage{hhline}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{hyperref}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Covid-19 isolation and quarantine orders in a district of Berlin,
+Germany How many, how long, to whom and predictive factors}
+\author{Jakob Schumacher, Lisa Kühne, Sophie Bruessermann, Benjamin
+Geisler, Sonja Jäckle}
+\date{22. April 2022}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# ![]("https://www.horizont.net/news/media/32/Das{-}neue{-}Berlin{-}Logo{-}315209.jpeg")\{width=30\%\}}
+\CommentTok{\# ![]("https://www.ultrasoundsymposium.org/wp{-}content/uploads/2017/08/fhg{-}1.gif")\{width=30\%\}}
+\CommentTok{\# ![](https://www.lsc{-}digital{-}public{-}health.de/images/partners/leibniz{-}institut{-}bips.png)\{width=30\%\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{about-this-repository}{%
+\section{About this Repository}\label{about-this-repository}}
+
+The following R-Script calculates all the necessary numbers and figures
+for a publication. All necessary files to reproduce are available.
+
+\hypertarget{aim-of-the-publication}{%
+\subsection{Aim of the publication}\label{aim-of-the-publication}}
+
+\hypertarget{what-you-need-to-reproduce-the-script}{%
+\subsection{What you need to reproduce the
+script}\label{what-you-need-to-reproduce-the-script}}
+
+\hypertarget{files}{%
+\subsubsection{Files}\label{files}}
+
+\begin{itemize}
+\tightlist
+\item
+  All necessary files are in this repository
+\end{itemize}
+
+\hypertarget{softare}{%
+\subsubsection{Softare}\label{softare}}
+
+\begin{itemize}
+\tightlist
+\item
+  R. This project uses Renv. See the file .Rprofile for used packages
+\end{itemize}
+
+\hypertarget{fonts}{%
+\subsubsection{Fonts}\label{fonts}}
+
+\begin{quote}
+Setup: You will only need to run this once, but it will take a few
+minutes to finish Install
+\url{https://fonts.google.com/specimen/PT+Sans} on your local computer
+install.packages(``extrafont'') library(extrafont) font\_import() \#
+Import all the .ttf files from your system. On Linux see also:
+\url{https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext}
+\end{quote}
+
+\hypertarget{how-the-script-is-set-up}{%
+\subsection{How the script is set up}\label{how-the-script-is-set-up}}
+
+This script runs with the package target as some steps take long to
+calculate. The important parts lie in the functions in the code folder.
+You can check the file \_targets.R to see the different steps in their
+sequential order.
+
+\hypertarget{setup}{%
+\section{Setup}\label{setup}}
+
+\hypertarget{setting-options-for-knitr-ggplot-fonts}{%
+\subsection{Setting options for knitr, ggplot,
+fonts}\label{setting-options-for-knitr-ggplot-fonts}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Disabeling scientific notation}
+\FunctionTok{options}\NormalTok{(}\AttributeTok{scipen =} \DecValTok{999}\NormalTok{)}
+
+\CommentTok{\# Create correct figure caption}
+\NormalTok{knitr}\SpecialCharTok{::}\NormalTok{opts\_knit}\SpecialCharTok{$}\FunctionTok{set}\NormalTok{(}\AttributeTok{eval.after =} \StringTok{\textquotesingle{}fig.cap\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Adjust the big mark for large numbers}
+\NormalTok{knitr}\SpecialCharTok{::}\NormalTok{knit\_hooks}\SpecialCharTok{$}\FunctionTok{set}\NormalTok{(}\AttributeTok{inline =} \ControlFlowTok{function}\NormalTok{(x) \{ }\FunctionTok{prettyNum}\NormalTok{(x, }\AttributeTok{big.mark=}\StringTok{" "}\NormalTok{) \})}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{results}{%
+\section{Results}\label{results}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Hier wird die gespeicherte Tabelle eingelesen}
+\NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{tar\_read}\NormalTok{(df)}
+\NormalTok{demographiedaten }\OtherTok{\textless{}{-}} \FunctionTok{tar\_read}\NormalTok{(demographiedaten)}
+\NormalTok{zeiten }\OtherTok{\textless{}{-}} \FunctionTok{tar\_read}\NormalTok{(externalinput)}\SpecialCharTok{$}\NormalTok{zeiten}
+\NormalTok{externalinput }\OtherTok{\textless{}{-}} \FunctionTok{tar\_read}\NormalTok{(externalinput)}
+\NormalTok{resultslist }\OtherTok{\textless{}{-}} \FunctionTok{tar\_read}\NormalTok{(results)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{text-for-results}{%
+\subsection{Text for results}\label{text-for-results}}
+
+We extracted 109 087 datasets from SurvNet. 73 753 entries fullfilled
+the definition (11 215 had missing dates, 108 entries had an IDs that
+did not lead to an existing person and 24 030 separation orders did not
+begin in the study period). We removed 1 188 entries because they had a
+presumed typing error in one of the dates. We also removed 30 duplicated
+isolations and 2 389 duplicated quarantines. For 3 473 quarantines we
+reduced the length by the overlap with a following isolation period. In
+the demographic data we found 266 123 inhabitants registered in Berlin
+Reinickendorf (18 084 in the age group \textless7; 27 001 in the age
+group 7-17; 158 199 in the age group 18-64 and 62 839 in the age group
+\textgreater64).
+
+\emph{Analysis of quantity of isolation and quarantines:} The local
+public health institute Reinickendorf von Berlin ordered n\_i = 24 603
+isolations and 45 014 quarantines. This calculates to 9.2 isolations per
+100 inhabitants and 16.9 quarantines per 100 inhabitants. The number of
+quarantines and isolations by age group and recommendation period can
+bee seen in @ref(tab:agegrouptable)). 46 743 (81.6 \%) of persons had
+one spearation order (quarantine or isolation), 9 031 (15.8 \%) had two
+spearation orders, 1 366 (2.4 \%) had three spearation orders, 156 (0.3
+\%) had four spearation orders and 18 (0 \%) had five spearation orders
+- the maximum.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(resultslist}\SpecialCharTok{$}\NormalTok{agegroup\_table)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0637}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0446}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0382}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0382}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0318}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0318}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0255}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.1274}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0701}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0701}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.1083}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.1083}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0637}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0701}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0510}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0573}}@{}}
+\toprule
+\begin{minipage}[b]{\linewidth}\raggedright
+AgeGroup
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+q\_n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+i\_n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+q\_p
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+i\_p
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+q\_d
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\$ ilde d\_\{ ext\{i\}\}\$
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+q\_sum\_in\_y
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+i\_sum\_in\_y
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+q\_sum\_in\_d\_per\_p
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+i\_sum\_in\_d\_per\_p
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+contained
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+containedp
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+toolate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+toolatep
+\end{minipage} \\
+\midrule
+\endhead
+0 to 6 & 18084 & 9166 & 1403 & 50.7 & 7.8 & 8.1 & 11.2 & 203.2 & 42.9 &
+4.1 & 0.9 & 438 & 4.8 & 99 & 1.1 \\
+7 to 17 & 27001 & 17454 & 4016 & 64.6 & 14.9 & 7.8 & 11.1 & 375.3 &
+122.3 & 5.1 & 1.7 & 869 & 5.0 & 197 & 1.1 \\
+18 to 64 & 158199 & 16439 & 16146 & 10.4 & 10.2 & 8.7 & 10.0 & 390.9 &
+444.1 & 0.9 & 1.0 & 1822 & 11.1 & 208 & 1.3 \\
+65 to 110 & 62839 & 1955 & 3038 & 3.1 & 4.8 & 8.4 & 9.4 & 45.1 & 78.2 &
+0.3 & 0.5 & 343 & 17.5 & 34 & 1.7 \\
+\bottomrule
+\end{longtable}
+
+\emph{Analysis of the duration of isolation quarantines:} The median
+duration for isolations was 10 days (interquartile range 8 - 13). The
+duration did change in between different periods of recommendations. The
+median of the duration during the recommendation periods were: 14 days
+for the period No.~1, 8 days for the period No.~2 and 12 days for the
+period No.~3. The overall median duration for quarantines was 8 days
+(interquartile range 6 - 11). The median duration did differ between
+periods of different recommendations and age groups. The median of the
+duration during the recommendation periods were: 9 days for the period
+No.~1, 9 days for the period No.~2, 10 days for the period No.~3 and 4
+days for the period No.~4. See figure @ref(fig:duration). All together
+the public health agency ordered 688 years of isolations and 1 015 years
+of quarantine or 1 702 years in total.
+
+\emph{Analysis of the ratio of contact persons per case:} The overal
+ratio of contact persons was 1.87. In the period of the contact person
+defintion no. 1 the ratio was 2.82 in the period no. 2 the ratio was
+1.96 and in the period no. 3 the ratio was: 0.95.
+
+\emph{Analysis of isolations following quarantines:} In the time period
+from the start of the recording of quarantines 3 448 of 23 863
+isolations had a directly preceeding quarantine and 530 a preceeding
+quarantine in the 1 to 7 days before the isolations. 3 471 of 44 623
+quarantines in that time period had a directly following isolation
+(contained case) and 538 a isolation following in the days 1 to 7 after
+the quarantine (non-contained case). This did differ between different
+periods and recommendations see figure
+@ref(fig:adjoining-quarantines-and-isolation). Assuming a total
+prevention of transmission by the quarantine order this leads to a
+directly measurable reduction of 0.15 on the R value.
+
+\emph{Analysis of timeliness:} Our approximation of the median time
+period between the last contact and the beginning of the quarantine
+order was 4 (interquartile range 2 - 6) during the time periods when 14
+days were recommended as a quarantine duration.
+
+\hypertarget{text-for-discussion}{%
+\subsection{Text for discussion}\label{text-for-discussion}}
+
+The local public health agency Reinickendorf ordered isolations for
+slightly less than 10\% and quarantines for a bit more than 15\% of the
+population. This amounts to XXX days per person. The local public health
+agency of Reinickendorf ordered roughly 1700 years of quarantine in
+total.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(flextable)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'flextable'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:purrr':
+## 
+##     compose
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ft }\OtherTok{\textless{}{-}} \FunctionTok{flextable}\NormalTok{(resultslist}\SpecialCharTok{$}\NormalTok{agegroup\_table)}
+\NormalTok{ft }\OtherTok{\textless{}{-}} \FunctionTok{add\_footer\_lines}\NormalTok{(ft, }\StringTok{"Daily air quality measurements in New York, May to September 1973."}\NormalTok{)}
+\NormalTok{ft}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Warning: fonts used in `flextable` are ignored because the `pdflatex`
+## engine is used and not `xelatex` or `lualatex`. You can avoid this warning
+## by using the `set_flextable_defaults(fonts_ignore=TRUE)` command or use a
+## compatible engine by defining `latex_engine: xelatex` in the YAML header of the
+## R Markdown document.
+\end{verbatim}
+
+\providecommand{\docline}[3]{\noalign{\global\setlength{\arrayrulewidth}{#1}}\arrayrulecolor[HTML]{#2}\cline{#3}}
+
+\setlength{\tabcolsep}{2pt}
+
+\renewcommand*{\arraystretch}{1.5}
+
+\begin{longtable}[c]{|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}|p{0.75in}}
+
+
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{AgeGroup}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{N}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_n}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{i\_n}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_p}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{i\_p}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_d}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{\$\quad ilde\ d\_\{\quad ext\{i\}\}\$}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_sum\_in\_y}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{i\_sum\_in\_y}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_sum\_in\_d\_per\_p}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{i\_sum\_in\_d\_per\_p}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{contained}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{containedp}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{toolate}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{toolatep}}} \\
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}
+
+\endfirsthead
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{AgeGroup}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{N}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_n}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{i\_n}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_p}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{i\_p}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_d}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{\$\quad ilde\ d\_\{\quad ext\{i\}\}\$}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_sum\_in\_y}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{i\_sum\_in\_y}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{q\_sum\_in\_d\_per\_p}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{i\_sum\_in\_d\_per\_p}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{contained}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{containedp}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{toolate}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{toolatep}}} \\
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}\endhead
+
+
+
+\multicolumn{16}{!{\color[HTML]{FFFFFF}\vrule width 0pt}>{\raggedright}p{\dimexpr 12in+30\tabcolsep+15\arrayrulewidth}!{\color[HTML]{FFFFFF}\vrule width 0pt}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{Daily\ air\ quality\ measurements\ in\ New\ York,\ May\ to\ September\ 1973.}}} \\
+
+\endfoot
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{0\ to\ 6}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{18,084}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{9,166}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1,403}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{50.7}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{7.8}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{8.1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{11.2}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{203.2}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{42.9}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{4.1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{0.9}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{438}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{4.8}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{99}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1.1}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{7\ to\ 17}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{27,001}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{17,454}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{4,016}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{64.6}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{14.9}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{7.8}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{11.1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{375.3}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{122.3}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{5.1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1.7}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{869}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{5.0}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{197}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1.1}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{18\ to\ 64}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{158,199}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{16,439}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{16,146}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{10.4}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{10.2}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{8.7}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{10.0}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{390.9}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{444.1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{0.9}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1.0}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1,822}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{11.1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{208}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1.3}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{65\ to\ 110}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{62,839}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1,955}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{3,038}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{3.1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{4.8}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{8.4}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{9.4}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{45.1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{78.2}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{0.3}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{0.5}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{343}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{17.5}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{34}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.75in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\fontsize{11}{11}\selectfont{\textcolor[HTML]{000000}{1.7}}} \\
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}
+
+
+
+\end{longtable}
+
+\hypertarget{tables}{%
+\section{Tables}\label{tables}}
+
+\hypertarget{graphs}{%
+\section{Graphs}\label{graphs}}
+
+\hypertarget{graph-timeliness-over-time}{%
+\subsection{Graph timeliness over
+time}\label{graph-timeliness-over-time}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# DAs hier sollte noch in die Resultsberechnungen mit rein.}
+
+\CommentTok{\#  \%\textgreater{}\%}
+\CommentTok{\# }
+\CommentTok{\# df \%\textgreater{}\%}
+\CommentTok{\#   filter(DatensatzKategorie == "Kontakt{-}COVID{-}19") \%\textgreater{}\%}
+\CommentTok{\#   mutate(Q\_Duration\_number = str\_split(Q\_Duration\_shortvalue, " ", simplify = TRUE)[1]) \%\textgreater{}\%}
+\CommentTok{\#   mutate(Q\_Duration\_number = as.numeric(Q\_Duration\_number)) \%\textgreater{}\%}
+\CommentTok{\#   filter(Q\_Duration\_number == 14) \%\textgreater{}\%}
+\CommentTok{\#   mutate(Q\_timeliness = dauer {-} Q\_Duration\_number) \%\textgreater{}\%}
+\CommentTok{\#   group\_by(Meldewoche) \%\textgreater{}\%}
+\CommentTok{\#   summarise(timeliniess = mean(Q\_timeliness))}
+\CommentTok{\#   ggplot(aes(Meldewoche, timeliniess)) +}
+\CommentTok{\#   ester\_theme() +}
+\CommentTok{\#   geom\_col(fill = brewer.pal(3, mypalette)[2])}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{graph-incidence}{%
+\subsection{Graph: Incidence}\label{graph-incidence}}
+
+\hypertarget{graph-quarantine-duration-by-age-group}{%
+\subsection{Graph: Quarantine duration by age
+group}\label{graph-quarantine-duration-by-age-group}}
+
+\hypertarget{graph-adjoining-quarantines-and-isolation}{%
+\subsection{Graph: Adjoining quarantines and
+isolation}\label{graph-adjoining-quarantines-and-isolation}}
+
+\hypertarget{session-info}{%
+\subsection{Session Info}\label{session-info}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sessionInfo}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## R version 4.0.4 (2021-02-15)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 21.10
+## 
+## Matrix products: default
+## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+## 
+## locale:
+##  [1] LC_CTYPE=de_DE.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=de_DE.UTF-8        LC_COLLATE=de_DE.UTF-8    
+##  [5] LC_MONETARY=de_DE.UTF-8    LC_MESSAGES=de_DE.UTF-8   
+##  [7] LC_PAPER=de_DE.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] graphics  grDevices datasets  grid      stats     utils     methods  
+## [8] base     
+## 
+## other attached packages:
+##  [1] flextable_0.7.0            forcats_0.5.1             
+##  [3] stringr_1.4.0              dplyr_1.0.8               
+##  [5] purrr_0.3.4                readr_2.1.2               
+##  [7] tidyr_1.2.0                tibble_3.1.6              
+##  [9] ggplot2_3.3.5              tidyverse_1.3.1           
+## [11] targets_0.11.0             gridExtra_2.3             
+## [13] tidyquant_1.0.3            quantmod_0.4.18           
+## [15] TTR_0.24.3                 PerformanceAnalytics_2.0.4
+## [17] xts_0.12.1                 zoo_1.8-9                 
+## [19] RColorBrewer_1.1-3         pander_0.6.5              
+## [21] knitr_1.38                 mmtable2_0.1.3            
+## [23] DescTools_0.99.44          vistime_1.2.1             
+## [25] lubridate_1.8.0            janitor_2.1.0             
+## [27] ggthemes_4.2.4             here_1.0.1                
+## 
+## loaded via a namespace (and not attached):
+##  [1] assertive.base_0.0-9       colorspace_2.0-3          
+##  [3] ellipsis_0.3.2             class_7.3-18              
+##  [5] rprojroot_2.0.3            snakecase_0.11.0          
+##  [7] base64enc_0.1-3            fs_1.5.2                  
+##  [9] gld_2.6.4                  rstudioapi_0.13           
+## [11] proxy_0.4-26               ggrepel_0.9.1             
+## [13] fansi_1.0.3                mvtnorm_1.1-3             
+## [15] xml2_1.3.3                 codetools_0.2-18          
+## [17] rootSolve_1.8.2.3          jsonlite_1.8.0            
+## [19] gt_0.4.0                   broom_0.8.0               
+## [21] dbplyr_2.1.1               compiler_4.0.4            
+## [23] httr_1.4.2                 backports_1.4.1           
+## [25] assertthat_0.2.1           Matrix_1.3-2              
+## [27] fastmap_1.1.0              lazyeval_0.2.2            
+## [29] cli_3.2.0                  htmltools_0.5.2           
+## [31] tools_4.0.4                igraph_1.3.0              
+## [33] gtable_0.3.0               glue_1.6.2                
+## [35] lmom_2.8                   Rcpp_1.0.8.3              
+## [37] cellranger_1.1.0           vctrs_0.4.1               
+## [39] xfun_0.30                  ps_1.6.0                  
+## [41] rvest_1.0.2                lifecycle_1.0.1           
+## [43] renv_0.15.4                pacman_0.5.1              
+## [45] MASS_7.3-53.1              scales_1.2.0              
+## [47] hms_1.1.1                  expm_0.999-6              
+## [49] yaml_2.3.5                 curl_4.3.2                
+## [51] Exact_3.1                  gdtools_0.2.4             
+## [53] stringi_1.7.6              highr_0.9                 
+## [55] e1071_1.7-9                zip_2.2.0                 
+## [57] boot_1.3-27                systemfonts_1.0.4         
+## [59] rlang_1.0.2                pkgconfig_2.0.3           
+## [61] evaluate_0.15              lattice_0.20-41           
+## [63] htmlwidgets_1.5.4          assertive.properties_0.0-4
+## [65] processx_3.5.3             tidyselect_1.1.2          
+## [67] magrittr_2.0.3             R6_2.5.1                  
+## [69] generics_0.1.2             base64url_1.4             
+## [71] DBI_1.1.2                  pillar_1.7.0              
+## [73] haven_2.4.3                withr_2.5.0               
+## [75] modelr_0.1.8               crayon_1.5.1              
+## [77] assertive.types_0.0-3      uuid_1.0-4                
+## [79] Quandl_2.11.0              utf8_1.2.2                
+## [81] plotly_4.10.0              officer_0.4.2             
+## [83] tzdb_0.3.0                 rmarkdown_2.13            
+## [85] readxl_1.4.0               data.table_1.14.2         
+## [87] callr_3.7.0                reprex_2.0.1              
+## [89] digest_0.6.29              munsell_0.5.0             
+## [91] viridisLite_0.4.0          quadprog_1.5-8
+\end{verbatim}
+
+\end{document}
