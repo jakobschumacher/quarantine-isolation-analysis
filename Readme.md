@@ -1,7 +1,7 @@
-# Projekt: Absonderungslast
+# Script for COVID-19 isolation and quarantine orders in the district Berlin-Reinickendorf (Germany): How many, how long and to whom?
 
 ## Ziel 
-Darstellung der bisherigen Absonderungslast und Simulation. 
+Darstellung der Anzahl an Absonderungen (Isolationen und Quarantänen)
 
 ## Mitarbeitende
 Lisa Kühne
