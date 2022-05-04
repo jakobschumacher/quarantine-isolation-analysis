@@ -10,9 +10,16 @@ ester_theme <- function() {
   )
 }
 
+
+# Set colours -------------------------------------------------------------
+
+# https://coolors.co/00759c
+
 # Create colour palette for ggplot
 mypalette = 'Set1'
-
+colourquarantine = "#00759c"
+colourisolation = "#9E2800" 
+  
 
 
 
@@ -61,15 +68,16 @@ ggsave("graph/incidence.eps", p_gesamt, width = 7, height = 7)
 
 
 
-
 create_figure_duration <- function(df, demographiedaten){
+  colourquarantine = "#00759c"
+  colourisolation = "#9E2800" 
 p1 <- df %>%
   filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
   filter(!is.na(Q_Duration)) %>% 
   group_by(AgeGroup) %>% 
   ggplot(aes(factor(AgeGroup), as.numeric(dauer))) +
   ester_theme() +
-  geom_boxplot(outlier.shape = NA, fill = brewer.pal(3, mypalette)[2]) +
+  geom_boxplot(outlier.shape = NA, fill = colourquarantine) +
   facet_grid(~Q_Duration) +
   coord_cartesian(ylim = c(0, 23)) +
   ylab("duration in days") +
@@ -86,7 +94,7 @@ p2 <- df %>%
   # geom_violin(scale = "count") +
   facet_grid(~I_Duration) +
   coord_cartesian(ylim = c(0,28)) +
-  geom_boxplot(outlier.shape = NA, fill = brewer.pal(3, mypalette)[1]) +
+  geom_boxplot(outlier.shape = NA, fill = colourisolation) +
   ylab("duration in days") +
   xlab("") +
   ggtitle("Duration of isolation in Reinickendorf Berlin") +
@@ -201,19 +209,47 @@ ggsave("graph/adjoining.eps", p_gesamt, width = 7, height = 7)
 
 
 create_figure_epicurve <- function(df, demographiedaten, resultslist, externalinput){
+
+  # Dates for the Q_Def subgraph
+  start <- externalinput$StartDate  
+  end <- externalinput$EndDate  
+  date_q1_q2 <- externalinput$zeiten %>% filter(Q_Def == "Q_Def_1") %>% slice_max(dates) %>% pull(dates)
+  date_q2_q3 <- externalinput$zeiten %>% filter(Q_Def == "Q_Def_2") %>% slice_max(dates) %>% pull(dates)
+  date_q1 <- start + (as.numeric(date_q1_q2 - start) / 2) 
+  date_q2 <- date_q1_q2 + (as.numeric(date_q2_q3 - date_q1_q2) / 2) 
+  date_q3 <- date_q2_q3 + (as.numeric(end - date_q2_q3) / 2) 
+  qdefheight = -150
+  xadjustment = 30
   
-p <- df %>% 
-  mutate(meldezeit = floor_date(AbsonderungVon, "week")) %>% 
-  ggplot(aes(meldezeit, fill = DatensatzKategorie)) + 
-  ester_theme() +
-  geom_bar() +
-  scale_fill_brewer(palette=mypalette) +
-  ylab("n") +
-  xlab("") +
-  ggtitle("Number of quarantines and isolations") +
-  theme(legend.position = "none")
-
-ggsave("graph/epicurve.eps", p, width = 7, height = 7)
-
-"graph/epicurve.eps"
+  p <- df %>% 
+    mutate(meldezeit = floor_date(AbsonderungVon, "week")) %>% 
+    ggplot(aes(meldezeit, fill = DatensatzKategorie)) + 
+    ester_theme() +
+    geom_bar() +
+    scale_fill_manual(values = c(colourisolation, colourquarantine)) +
+    ylab("n") +
+    xlab("") +
+    ggtitle(paste("COVID-19 isolations and quarantines in a district of Berlin, Germany \n and contact person definition by the Robert Koch Institute")) +
+    theme(legend.position = "none") + 
+    # Add contact person defintion period
+    annotate(geom = "text", x = dmy("15052020"), y = 950, label = "Start recording \n of quarantines", hjust = "left") +  
+    annotate(geom = "curve", x = dmy("05062020"), y = 700, xend = dmy("25052020"), yend = 100,   curvature = .2, arrow = arrow(length = unit(2, "mm"))) +
+    annotate(geom = "text", x = date_q1, y = qdefheight, label = "Q_1", hjust = "center") +
+    geom_segment(aes(x = date_q1 - xadjustment, y = qdefheight, xend = start, yend = qdefheight), arrow = arrow(length = unit(2, "mm"))) +
+    geom_segment(aes(x = date_q1 + xadjustment, y = qdefheight, xend = date_q1_q2 -10, yend = qdefheight), arrow = arrow(length = unit(2, "mm"))) +
+    annotate(geom = "text", x = date_q2, y = qdefheight, label = "Q_2", hjust = "center") +
+    annotate(geom = "text", x = date_q3, y = qdefheight, label = "Q_3", hjust = "center") +
+    geom_segment(aes(x = date_q3 - xadjustment, y = qdefheight, xend = date_q2_q3 + 10, yend = qdefheight), arrow = arrow(length = unit(2, "mm"))) +
+    geom_segment(aes(x = date_q3 + xadjustment, y = qdefheight, xend = end, yend = qdefheight), arrow = arrow(length = unit(2, "mm"))) +
+    geom_segment(aes(x = date_q1_q2, y = -250, xend = date_q1_q2, yend = -50)) +
+    geom_segment(aes(x = date_q2_q3, y = -250, xend = date_q2_q3, yend = -50)) 
+  
+  
+  ggsave("graph/epicurve.eps", p, width = 9, height = 4.5)
+  ggsave("graph/epicurve.png", p, width = 9, height = 4.5)
+  
+  "graph/epicurve.eps"
 }
+
+
+

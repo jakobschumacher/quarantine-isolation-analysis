@@ -37,8 +37,8 @@ set_filter <- function(dataset, externalinput){
     mutate(abstandMeldedatumVon = Meldedatum - AbsonderungVon) %>% # create time periods used for filtering
     mutate(typingerror = ifelse(abstandVonBis > 30, "typingerror", typingerror)) %>%
     mutate(typingerror = ifelse(abstandVonBis < 1, "typingerror", typingerror)) %>%
-    mutate(typingerror = ifelse(abstandMeldedatumVon < -30, "typingerror", typingerror)) %>%
-    mutate(typingerror = ifelse(abstandMeldedatumVon > 30, "typingerror", typingerror)) %>% 
+    mutate(typingerror = ifelse(abstandMeldedatumVon < -182, "typingerror", typingerror)) %>%
+    mutate(typingerror = ifelse(abstandMeldedatumVon > 182, "typingerror", typingerror)) %>% 
     mutate(filtervar = ifelse(emptydates == "noemptydates" &
                                 wrongID == "korrektID" &
                                 outofrange == "inrange" &

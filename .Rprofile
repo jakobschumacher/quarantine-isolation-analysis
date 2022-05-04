@@ -14,7 +14,8 @@ pacman::p_load(here,         # File locator
                gridExtra,    # Several plots into one
                grid,         # Text abilities of ggplot
                targets,      # use targets for this project
-               tidyverse        
+               tidyverse,
+               DiagrammeR    # Make flow charts
 )
 
 # Make sure that we use the dplyr filter function

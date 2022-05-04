@@ -100,7 +100,7 @@ Q_Def <- bind_rows(
   tibble(
     dates =  seq(dmy("20.05.2021"), externalinput$EndDatePlus14, by=1),
     Q_Def = "Q_Def_3",
-    Q_Def_value = "    Enger Kontakt (<1,5 m, Nahfeld) länger als 10 Minuten ohne adäquaten Schutz# (adäquater Schutz = Fall und Kontaktperson tragen durchgehend und korrekt MNS [Mund-Nasen-Schutz] oder FFP2-Maske). Gespräch mit dem Fall (Face-to-face-Kontakt, <1,5 m, unabhängig von der Gesprächsdauer) ohne adäquaten Schutz# (adäquater Schutz = Fall und Kontaktperson tragen durchgehend und korrekt MNS [Mund-Nasen-Schutz] oder FFP2-Maske) oder direkter Kontakt (mit respiratorischem Sekret). Gleichzeitiger Aufenthalt von Kontaktperson und Fall im selben Raum mit wahrscheinlich hoher Konzentration infektiöser Aerosole unabhängig vom Abstand für > 10 Minuten, auch wenn durchgehend und korrekt MNS (Mund-Nasen-Schutz) oder FFP2-Maske getragen wurde. \n Coronavirus-Update (Internes Dokument des Gesundheitsamtes Reinickendorf): Umgang mit Kontaktpersonen in Schulen Wenn wir einen Fall in einer Schulklasse hatten, wird die gesamte Klasse über eine Fernfeldübertragung nur noch bei den folgenden Konstellationen in Quarantäne gesteckt: 1) Es sind schon Übertragungen in der Klasse in der zu bewertenden Situation bekannt geworden 2) Es wurde gar nicht gelüftet und die Zeit zusammen im Raum war über 2h. 3) Sonderfälle, bei dem grob viele Hygieneregeln missachtet wurden, nach Rücksprache. Davon unbenommen bleibt aber, dass die Personen durch eine Nahfeldübertragung Kontaktpersonen geworden sind. Zum Beispiel die besten Kumpels in der Klasse, die eng sitzenden Sitznachbarn, die Erziehungskraft, die das Kind ganz eng betreut hat.",
+    Q_Def_value = "Enger Kontakt (<1,5 m, Nahfeld) länger als 10 Minuten ohne adäquaten Schutz# (adäquater Schutz = Fall und Kontaktperson tragen durchgehend und korrekt MNS [Mund-Nasen-Schutz] oder FFP2-Maske). Gespräch mit dem Fall (Face-to-face-Kontakt, <1,5 m, unabhängig von der Gesprächsdauer) ohne adäquaten Schutz# (adäquater Schutz = Fall und Kontaktperson tragen durchgehend und korrekt MNS [Mund-Nasen-Schutz] oder FFP2-Maske) oder direkter Kontakt (mit respiratorischem Sekret). Gleichzeitiger Aufenthalt von Kontaktperson und Fall im selben Raum mit wahrscheinlich hoher Konzentration infektiöser Aerosole unabhängig vom Abstand für > 10 Minuten, auch wenn durchgehend und korrekt MNS (Mund-Nasen-Schutz) oder FFP2-Maske getragen wurde. \n Coronavirus-Update (Internes Dokument des Gesundheitsamtes Reinickendorf): Umgang mit Kontaktpersonen in Schulen Wenn wir einen Fall in einer Schulklasse hatten, wird die gesamte Klasse über eine Fernfeldübertragung nur noch bei den folgenden Konstellationen in Quarantäne gesteckt: 1) Es sind schon Übertragungen in der Klasse in der zu bewertenden Situation bekannt geworden 2) Es wurde gar nicht gelüftet und die Zeit zusammen im Raum war über 2h. 3) Sonderfälle, bei dem grob viele Hygieneregeln missachtet wurden, nach Rücksprache. Davon unbenommen bleibt aber, dass die Personen durch eine Nahfeldübertragung Kontaktpersonen geworden sind. Zum Beispiel die besten Kumpels in der Klasse, die eng sitzenden Sitznachbarn, die Erziehungskraft, die das Kind ganz eng betreut hat.",
     Q_Def_shortvalue  = "10 min. + Indidividual children + Unvaccinated dont have to go",
     Q_Def_url  = "Corona-Update",
   )
@@ -125,5 +125,33 @@ checkanonids <- function(){
   print(df %>% filter(AnonID=="ID021580"))
   print(df %>% filter(AnonID == "ID037188"))
   print(df %>% filter(AnonID == "ID015472"))
+}
+
+
+# Schoolclosure -----------------------------------------------------------
+
+schoolclosures <- function(){
+# https://www.tagesschau.de/inland/corona-schulschliessungen-103.html
+Schoolclosure1Berlin_beginn <- dmy("13.03.2020")
+
+# https://www.focus.de/familie/eltern/schulausfall-und-schulbeginn-wo-montag-der-unterricht-startet-alle-bundeslaender_id_11704839.html
+Schoolclosure1Berlin_end <- dmy("29.05.2020") 
+
+# https://www.tagesschau.de/inland/gesellschaft/corona-treffen-ergebnisse-101.html
+Schoolclosure2Berlin_beginn <- dmy("06.01.2021")
+
+# https://www.berlin.de/aktuelles/berlin/6452196-958092-schrittweise-schuloeffnung-beginnt-in-be.html
+Schoolclosure2Berlin_end <- dmy("22.02.2021")
+
+# in total
+Schoolclosure1Berlin_end - Schoolclosure1Berlin_beginn + Schoolclosure2Berlin_end - Schoolclosure2Berlin_beginn
+}
+
+
+# Contact monitor RKI -----------------------------------------------------
+
+contactmonitor <- function(){
+  df <- read_csv("https://rocs.hu-berlin.de/viz/contactindex-monitor/contactindex-data/data/cx_nation_processed.csv")
+  mean(df$k)
 }
 

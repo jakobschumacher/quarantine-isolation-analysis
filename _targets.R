@@ -8,7 +8,6 @@ source("code/transforming_functions.R")
 source("code/calculating_results.R")
 source("code/graphs_tables.R")
 
-
 # End this file with a list of target objects.
 list(
   # Reading in data

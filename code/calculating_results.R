@@ -3,9 +3,9 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
   # Create empty list  
   resultslist <- list()
 
-  #####################################################
-  # Results of processing
-  #####################################################
+
+# Results of processing ---------------------------------------------------
+
   resultslist$queried <- tar_read(df_prefiltered) %>% nrow()
   
   resultslist$emptydates <- tar_read(df_prefiltered) %>% 
@@ -67,11 +67,10 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
   
   
   
-  
-  ###################################################
-  # Analysis of quantity of isolation and quarantines 
-  ###################################################
-  
+
+# Analysis of quantity of isolation and quarantines  ----------------------
+
+
   resultslist$I_n <- df %>% filter(DatensatzKategorie == "COVID-19") %>% nrow()
   resultslist$Q_n <- df %>% filter(DatensatzKategorie == "Kontakt-COVID-19") %>% nrow()
   
@@ -131,9 +130,9 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
   
   
   
-  ###################################################
-  # Analysis of the duration of isolation and quarantines 
-  ###################################################
+
+# Analysis of the duration of isolation and quarantines  ------------------
+
   
   # Analysis of duration of isolation
   
@@ -191,9 +190,9 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
     summarise(round(sum(dauer)/365)) %>% 
     pull()
   
-  ###################################################
-  # Analysis of the ratio of contact persons per case
-  ###################################################
+
+# Analysis of the ratio of contact persons per case -----------------------
+
   
   ## Calculate ratio of quarantines to isolations
   resultslist$K_F_Verhaeltnis <- df %>%
@@ -220,10 +219,11 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
   resultslist$K_F_Verhaeltnis_QDef_2 <- resultslist$K_F_Verhaeltnis_QDef %>% filter(q_def == "Q_Def_2") %>% pull(verhaeltnis)
   resultslist$K_F_Verhaeltnis_QDef_3 <- resultslist$K_F_Verhaeltnis_QDef %>% filter(q_def == "Q_Def_3") %>% pull(verhaeltnis)
   
-  ###################################################  
-  # Analysis of isolations following quarantines
-  ###################################################
 
+# Analysis of isolations following quarantines ----------------------------
+
+  
+  
   # n of i after q 
   resultslist$I_after_Q <- df %>%
     filter(AbsonderungVon > externalinput$StartDateKP) %>% 
@@ -274,7 +274,7 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
     mutate(percentage = round(100*n/N))
   
   # n and percent of quarantines with correct I afterwards by quarantine defintion
-  resultslist$Q_with_correct_I_by_QDef_table <- df %>%
+  resultslist$Q_with_too_late_I_by_QDef_table <- df %>%
     filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
     group_by(Q_Def) %>% 
     count(result) %>% 
@@ -305,9 +305,8 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
     left_join(resultslist$Q_n_by_AgeGroup %>% rename(N=n), by="AgeGroup") %>% 
     mutate(percentage = round(100*n/N,1))
   
-  ###################################################
-  # Analysis of timeliness
-  ###################################################
+
+# Analysis of timeliness --------------------------------------------------
   
   resultslist$q_timeliness_median <- df %>%
     filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
@@ -318,11 +317,11 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
     pull()
     
   
-  
-  
-  #####################################################
-  # Age group table
-  #####################################################
+
+
+# Generate table 2 -----------------------------------------------------------------
+
+# ├ Age group table ----
   
   resultslist$agegroup_table <- 
     demographiedaten %>% 
@@ -365,7 +364,7 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
     mutate(q_sum_in_d_per_p = round(q_sum_in_y*365/N,1)) %>%     
     # quarantine days per person
     mutate(i_sum_in_d_per_p = round(i_sum_in_y*365/N,1)) %>% 
-    # non-contained cases
+    # contained cases
     left_join(resultslist$Q_with_correct_I_by_Agegroup_table %>% 
                 select(AgeGroup, contained = n), by = "AgeGroup") %>% 
     left_join(resultslist$Q_with_correct_I_by_Agegroup_table %>% 
@@ -376,67 +375,123 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
   left_join(resultslist$Q_with_too_late_I_by_Agegroup_table %>% 
               select(AgeGroup, toolatep = percentage), by = "AgeGroup")
   
+
+# ├ Q_Def table -------------------------------------------------------------
+
+resultslist$qdef_table <- df %>%
+    select(Q_Def) %>% 
+    distinct() %>% 
+    # add number of quarantines
+    left_join(df %>% 
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+                count(Q_Def) %>% 
+                rename(q_n = n), by = "Q_Def") %>% 
+    # add number of isolations
+    left_join(df %>% 
+                filter(DatensatzKategorie == "COVID-19") %>% 
+                count(Q_Def) %>% 
+                rename(i_n = n), by = "Q_Def") %>% 
+    # add duration of quarantines
+    left_join(df %>% 
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+                group_by(Q_Def) %>% 
+                summarise(q_d = round(mean(dauer),1)), by = "Q_Def") %>% 
+    # add duration of isolations
+    left_join(df %>% 
+                filter(DatensatzKategorie == "COVID-19") %>% 
+                group_by(Q_Def) %>% 
+                summarise(i_d = round(mean(dauer),1)), by = "Q_Def") %>% 
+    # add sum of quarantine days
+    left_join(df %>% 
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+                group_by(Q_Def) %>% 
+                summarise(q_sum_in_y = round(sum(dauer)/365,1)), by = "Q_Def") %>% 
+    # add sum of isolation days
+    left_join(df %>% 
+                filter(DatensatzKategorie == "COVID-19") %>% 
+                group_by(Q_Def) %>% 
+                summarise(i_sum_in_y = round(sum(dauer)/365,1)), by = "Q_Def") %>% 
+    # contained cases
+    left_join(resultslist$Q_with_correct_I_by_QDef_table %>% 
+                select(Q_Def, contained = n), by = "Q_Def") %>% 
+    left_join(resultslist$Q_with_correct_I_by_QDef_table %>% 
+                select(Q_Def, containedp = percentage), by = "Q_Def") %>% 
+    # non-contained cases
+    left_join(resultslist$Q_with_too_late_I_by_QDef_table %>% 
+                select(Q_Def, toolate = n), by = "Q_Def") %>% 
+    left_join(resultslist$Q_with_too_late_I_by_QDef_table %>% 
+                select(Q_Def, toolatep = percentage), by = "Q_Def")
   
+
+# ├ Total table ----  
   
+  resultslist$total_table <-  demographiedaten %>% 
+    # add number of quarnatines
+    summarise(N = sum(value)) %>% 
+    mutate(total = "total") %>% 
+    bind_cols(df %>% 
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+                count() %>% 
+                rename(q_n = n)) %>% 
+    # add number of isolations
+    bind_cols(df %>% 
+                filter(DatensatzKategorie == "COVID-19") %>% 
+                count() %>% 
+                rename(i_n = n)) %>% 
+    # add percentage of quarantines
+    mutate(q_p = round(100 * q_n / N,1)) %>% 
+    # add percentage of isolations
+    mutate(i_p = round(100 * i_n / N,1)) %>% 
+    # add duration of quarantines
+    bind_cols(df %>% 
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+                group_by() %>% 
+                summarise(q_d = round(mean(dauer),1))) %>% 
+    # add duration of isolations
+    bind_cols(df %>% 
+                filter(DatensatzKategorie == "COVID-19") %>% 
+                group_by() %>% 
+                summarise(i_d = round(mean(dauer),1))) %>% 
+    # add sum of quarantine days
+    bind_cols(df %>% 
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+                group_by() %>% 
+                summarise(q_sum_in_y = round(sum(dauer)/365,1))) %>% 
+    # add sum of isolation days
+    bind_cols(df %>% 
+                filter(DatensatzKategorie == "COVID-19") %>% 
+                group_by() %>% 
+                summarise(i_sum_in_y = round(sum(dauer)/365,1))) %>% 
+    # quarantine days per person
+    mutate(q_sum_in_d_per_p = round(q_sum_in_y*365/N,1)) %>%     
+    # # quarantine days per person
+    mutate(i_sum_in_d_per_p = round(i_sum_in_y*365/N,1)) %>% 
+    # contained cases
+    bind_cols(df %>%
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+                count(result) %>% 
+                filter(result == "I_correct_after_Q") %>% 
+                bind_cols(N = resultslist$N) %>% 
+                mutate(percentage = round(100*n/N,1)) %>% 
+                select(contained = n, containedp = percentage)
+    ) %>% 
+    # non-contained cases
+    bind_cols(df %>%
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+                count(result) %>% 
+                filter(result == "I_too_long_after_Q") %>% 
+                bind_cols(N = resultslist$N) %>% 
+                mutate(percentage = round(100*n/N,1)) %>% 
+                select(toolate = n)
+    ) 
   
-  
-  
-  
+
+# End of function ---------------------------------------------------------
+
+
   resultslist
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#####################################################  
-# Archive
-#####################################################  
-
-
-# # total time
-# resultslist$totaltime <- df %>% 
-#   group_by(DatensatzKategorie) %>% 
-#   summarise(completeduration_days = sum(dauer), completeduration_years = sum(dauer) / 365, .groups = "drop_last") %>%
-#   mutate(N = demographiedaten %>% summarise(sum(value))) %>% 
-#   mutate(completeduration_person = round(completeduration_days / N ,1)) %>% 
-#   ungroup()
-# 
-
-
-
-# resultslist$PercentQ_byAnonID <- df %>% filter(DatensatzKategorie == "Kontakt-COVID-19") %>%  group_by(AnonID) %>% summarise(n = n(), .groups = "drop")   %>% summarise(n = n()) %>% mutate(resultslist$N) %>% mutate(percentage = round(100*n/N))
-# 
-# # N isolations by anonID
-# resultslist$PercentI_byAnonID <- df %>% filter(DatensatzKategorie == "COVID-19") %>%  group_by(AnonID) %>% summarise(n = n(), .groups = "drop")   %>% summarise(n = n()) %>% mutate(resultslist$N) %>% mutate(percentage = round(100*n/N))
-# # 
-# # Quarantines by population
-# resultslist$AnzahlQproBev <- round(100*resultslist$GesamtQ / demographiedaten %>% summarise(sum(value)) %>% pull(), 1)
-# resultslist$AnzahlQproBevAgegroup <- round(100 * resultslist$AnzahlQAgegroup  / demographiedaten$value, 1)
-# 
-# # Isolations by population
-# resultslist$AnzahlIproBev <- round(100*resultslist$GesamtI / demographiedaten %>% summarise(sum(value)) %>% pull(),1)
-# resultslist$AnzahlIproBevAgegroup <- round(100 * resultslist$AnzahlIAgegroup  / demographiedaten$value, 1)
-# 
-
-# 
-
-# 
-# 
 
 
 

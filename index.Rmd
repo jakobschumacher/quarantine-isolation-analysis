@@ -19,40 +19,16 @@ params:
   completerun: FALSE
   dataversion: "2022-04-14"
 ---
+![](https://www.lsc-digital-public-health.de/images/partners/leibniz-institut-bips.png){width=30%}
 ```{r}
 # ![]("https://www.horizont.net/news/media/32/Das-neue-Berlin-Logo-315209.jpeg"){width=30%}
 # ![]("https://www.ultrasoundsymposium.org/wp-content/uploads/2017/08/fhg-1.gif"){width=30%}
-# ![](https://www.lsc-digital-public-health.de/images/partners/leibniz-institut-bips.png){width=30%}
-```
+# 
 
+###############################################
+# Setting options for knitr, ggplot, fonts 
+##############################################
 
-# About this Repository
-The following R-Script calculates all the necessary numbers and figures for a publication. All necessary files to reproduce are available. 
-
-## Aim of the publication
-
-## What you need to reproduce the script
-
-### Files
-- All necessary files are in this repository
-
-### Softare
-- R. This project uses Renv. See the file .Rprofile for used packages
-
-### Fonts
-> Setup: You will only need to run this once, but it will take a few minutes to finish 
-> Install https://fonts.google.com/specimen/PT+Sans on your local computer
-> install.packages("extrafont")
-> library(extrafont)
-> font_import() # Import all the .ttf files from your system. On Linux see also: https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext
-
-## How the script is set up
-This script runs with the package target as some steps take long to calculate. The important parts lie in the functions in the code folder. You can check the file _targets.R to see the different steps in their sequential order.
-
-# Setup
-
-## Setting options for knitr, ggplot, fonts 
-```{r setup output options}
 # Disabeling scientific notation
 options(scipen = 999)
 
@@ -62,14 +38,19 @@ knitr::opts_knit$set(eval.after = 'fig.cap')
 # Adjust the big mark for large numbers
 knitr::knit_hooks$set(inline = function(x) { prettyNum(x, big.mark=" ") })
 
-
+# Setup: You will only need to run this once, but it will take a few minutes to finish 
+# Install https://fonts.google.com/specimen/PT+Sans on your local computer
+# install.packages("extrafont")
+# library(extrafont)
+# font_import() # Import all the .ttf files from your system. On Linux see also: https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext
 ```
 
 
+# About this Repository
+The following R-Script calculates all the necessary numbers and figures for a publication. All necessary files to reproduce are available. The analysis is done in R. This project uses Renv. See the file .Rprofile for used packages. This script runs with the package target. The important parts of the script lie in the functions in the code folder. You can check the file _targets.R to see the different steps in their sequential order.
 
 # Results
 ```{r Results}
-# Hier wird die gespeicherte Tabelle eingelesen
 df <- tar_read(df)
 demographiedaten <- tar_read(demographiedaten)
 zeiten <- tar_read(externalinput)$zeiten
@@ -77,16 +58,9 @@ externalinput <- tar_read(externalinput)
 resultslist <- tar_read(results)
 ```
 
-
-
-## Text for results
 We extracted `r resultslist$queried` datasets from SurvNet. `r resultslist$definitionfullfilled` entries fullfilled the definition (`r resultslist$emptydates` had missing dates, `r resultslist$wrongid` entries had an IDs that did not lead to an existing person and `r resultslist$outofrange` separation orders did not begin in the study period). We removed `r resultslist$typingerror` entries because they had a presumed typing error in one of the dates. We also removed `r resultslist$deleted_duplicates_isolations ` duplicated isolations and `r resultslist$deleted_duplicates_quarantines` duplicated quarantines. For `r resultslist$adjustedQuarantines` quarantines we reduced the length by the overlap with a following isolation period. In the demographic data we found `r resultslist$N` inhabitants registered in Berlin Reinickendorf (`r resultslist$N_0_6` in the age group <7; `r resultslist$N_7_17 ` in the age group 7-17; `r resultslist$N_18_64` in the age group 18-64 and `r resultslist$N_65_110` in the age group >64).
 
 *Analysis of quantity of isolation and quarantines:*  The local public health institute Reinickendorf von  Berlin ordered n_i = `r resultslist$I_n` isolations and `r resultslist$Q_n` quarantines. This calculates to `r resultslist$I_p` isolations per 100 inhabitants and `r resultslist$Q_p ` quarantines per 100 inhabitants. The number of quarantines and isolations by age group and recommendation period can bee seen in \@ref(tab:agegrouptable)). `r resultslist$QundIproPerson_1_order_n` (`r resultslist$QundIproPerson_1_order_p` %) of persons had one spearation order (quarantine or isolation), `r resultslist$QundIproPerson_2_order_n` (`r resultslist$QundIproPerson_2_order_p` %) had two spearation orders, `r resultslist$QundIproPerson_3_order_n` (`r resultslist$QundIproPerson_3_order_p` %) had three spearation orders, `r resultslist$QundIproPerson_4_order_n` (`r resultslist$QundIproPerson_4_order_p` %) had four spearation orders and `r resultslist$QundIproPerson_5_order_n` (`r resultslist$QundIproPerson_5_order_p` %) had five spearation orders - the maximum.   
-
-```{r, agegrouptable}
-knitr::kable(resultslist$agegroup_table)
-```
 
 *Analysis of the duration of isolation quarantines:* The median duration for isolations was `r resultslist$MedianeDauerI["50%"] ` days (interquartile range `r resultslist$MedianeDauerI["25%"]` - `r resultslist$MedianeDauerI["75%"] `). The duration did change in between different periods of recommendations. The median of the duration during the recommendation periods were: `r resultslist$MedianeDauerI_Rec_1` days for the period No. 1, `r resultslist$MedianeDauerI_Rec_2` days for the period No. 2 and `r resultslist$MedianeDauerI_Rec_3` days for the period No. 3. The overall median duration for quarantines was `r resultslist$MedianeDauerQ["50%"] ` days (interquartile range `r resultslist$MedianeDauerQ["25%"]` - `r resultslist$MedianeDauerQ["75%"] `). The median duration did differ between periods of different recommendations and age groups. The median of the duration during the recommendation periods were: `r resultslist$MedianeDauerQ_Rec_1` days for the period No. 1, `r resultslist$MedianeDauerQ_Rec_2` days for the period No. 2, `r resultslist$MedianeDauerQ_Rec_3` days for the period No. 3 and `r resultslist$MedianeDauerQ_Rec_4` days for the period No. 4. See figure \@ref(fig:duration). All together the public health agency ordered `r resultslist$i_d_in_y` years of isolations and `r resultslist$q_d_in_y` years of quarantine or `r resultslist$qi_d_in_y` years in total. 
 
@@ -98,21 +72,59 @@ knitr::kable(resultslist$agegroup_table)
 
 *Analysis of timeliness:* Our approximation of the median time period between the last contact and the beginning of the quarantine order was `r resultslist$q_timeliness_median["50%"]` (interquartile range `r resultslist$q_timeliness_median["25%"]` - `r resultslist$q_timeliness_median["75%"] `) during the time periods when 14 days were recommended as a quarantine duration. 
 
-## Text for discussion
-The local public health agency Reinickendorf ordered isolations for slightly less than 10\% and quarantines for a bit more than 15\% of the population. This amounts to XXX days per person. The local public health agency of Reinickendorf ordered roughly 1700 years of quarantine in total.
-
 
 ```{r}
-library(flextable)
 
-ft <- flextable(resultslist$agegroup_table)
-ft <- add_footer_lines(ft, "Daily air quality measurements in New York, May to September 1973.")
-ft
+# df %>% 
+#   select(dauer, adjoiningQandI, result) %>% 
+#   group_by(result) %>% 
+#   summarise(sum(dauer))
+#   ggplot(aes(x = dauer, y = adjoiningQandI)) +
+#   geom_col()
+
+
+
 ```
 
 
 
+
 # Tables
+
+```{r}
+resultslist$agegroup_table %>% 
+  select(-q_sum_in_y, -i_sum_in_y, -toolatep) %>% 
+  kable()
+
+```
+
+```{r}
+
+namesoftable <- resultslist$agegroup_table %>% 
+  select(-q_sum_in_y, -i_sum_in_y, -toolatep) %>% 
+  rename(Q_Def = AgeGroup) %>% 
+  names()  
+
+
+resultslist$qdef_table %>% 
+  select(-q_sum_in_y, -i_sum_in_y, -toolatep) %>% 
+  mutate(N = "-", q_p = "-", i_p = "-", q_sum_in_d_per_p = "-", i_sum_in_d_per_p = "-")  %>% 
+  select(namesoftable) %>% 
+  kable()
+
+```
+
+
+
+```{r}
+resultslist$total_table %>%  
+  kable()
+
+
+```
+
+
+
 ```{r totaltime_groups, echo = FALSE}
 # set.caption('Total duration of SARS-CoV-2 quarantines and isolations per age and the percentage of each age group from the total.') 
 # resultslist$totaltime_groups %>% 
@@ -123,12 +135,89 @@ ft
 
 # Graphs
 
+
+## Graph: Inclusion / Exclusion
+```{r incidence, fig.height= 3, fig.cap=paste("Inclusion and exclusion"), error=FALSE, message=FALSE, warning=FALSE}
+
+create_figure_inclusionexclusion <- function(resultslist){
+  # Serves the scaling of the graph
+  commondivider <- 100000 / 7
+    
+  grViz("
+digraph boxes_and_circles {
+
+  graph [layout = dot,
+       rankdir = LR]
+
+subgraph {
+rank = same; 
+  Queried[label = 'Queried \n N = @@1-2',
+        shape = box,
+        fontname = Helvetica,
+        width = @@1-1]
+
+  Available_Dates[label = 'No missing dates \n N = @@2-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@2-1]
+
+  Correct_ID[label = 'Valid person ID \n N = @@3-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@3-1]
+
+  Inside_Studyperiod[label = 'Beginning in study period \n N = @@4-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@4-1]
+        
+  Typing_Correct[label = 'Dates without typing error \n N = @@5-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@5-1]
+        
+  Unique[label = 'Not duplicated \n N = @@6-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@6-1]
+}
+
+  Queried             ->  Available_Dates
+  Available_Dates     ->  Correct_ID
+  Correct_ID          ->  Inside_Studyperiod
+  Inside_Studyperiod  ->  Typing_Correct
+  Typing_Correct      ->  Unique
+
+ }
+
+[1]: c(resultslist$queried / commondivider, resultslist$queried)
+[2]: c( (resultslist$queried - resultslist$emptydates)  / commondivider,  resultslist$emptydates / commondivider,  (resultslist$queried - resultslist$emptydates),  resultslist$emptydates)
+[3]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid)  / commondivider, resultslist$wrongid / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid), resultslist$wrongid)
+[4]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange)  / commondivider, resultslist$outofrange / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange), resultslist$outofrange)
+[5]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror)  / commondivider, resultslist$typingerror / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror), resultslist$typingerror)
+[6]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror - resultslist$deleted_duplicates_quarantines - resultslist$deleted_duplicates_isolations)  / commondivider, (resultslist$deleted_duplicates_quarantines + resultslist$deleted_duplicates_isolations) / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror - resultslist$deleted_duplicates_quarantines - resultslist$deleted_duplicates_isolations), (resultslist$deleted_duplicates_quarantines + resultslist$deleted_duplicates_isolations))
+
+")
+  
+}
+
+
+
+setEPS()
+  
+# naming the eps file
+cairo_ps("graph/inclusionexclusion.eps")
+create_figure_inclusionexclusion(resultslist) 
+
+dev.off()
+
+
+```
+
+
+
 ## Graph timeliness over time
 ```{r}
-# DAs hier sollte noch in die Resultsberechnungen mit rein.
-
-#  %>%
-# 
 # df %>%
 #   filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
 #   mutate(Q_Duration_number = str_split(Q_Duration_shortvalue, " ", simplify = TRUE)[1]) %>%
@@ -152,10 +241,6 @@ ft
 
 
 ## Graph: Quarantine duration by age group
-```{r duration, fig.cap="Figure quarantine duration per age group", error=FALSE, message=FALSE, warning=FALSE}
-
-
-```
 
 
 ## Graph: Adjoining quarantines and isolation
@@ -165,9 +250,7 @@ ft
 ```
 
 
-
-
-## Session Info
+# Session Info
 ```{r}
 sessionInfo()
 ```
