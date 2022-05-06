@@ -1748,7 +1748,7 @@ a district of Berlin, Germany How many, how long, to whom and predictive
 factors</h1>
 <h4 class="author">Jakob Schumacher, Lisa Kühne, Sophie Bruessermann,
 Benjamin Geisler, Sonja Jäckle</h4>
-<h4 class="date">27. April 2022</h4>
+<h4 class="date">06. Mai 2022</h4>
 
 </div>
 
@@ -1769,13 +1769,7 @@ options(scipen = 999)
 knitr::opts_knit$set(eval.after = &#39;fig.cap&#39;)
 
 # Adjust the big mark for large numbers
-knitr::knit_hooks$set(inline = function(x) { prettyNum(x, big.mark=&quot; &quot;) })
-
-# Setup: You will only need to run this once, but it will take a few minutes to finish 
-# Install https://fonts.google.com/specimen/PT+Sans on your local computer
-# install.packages(&quot;extrafont&quot;)
-# library(extrafont)
-# font_import() # Import all the .ttf files from your system. On Linux see also: https://stackoverflow.com/questions/61204259/how-can-i-resolve-the-no-font-name-issue-when-importing-fonts-into-r-using-ext</code></pre>
+knitr::knit_hooks$set(inline = function(x) { prettyNum(x, big.mark=&quot; &quot;) })</code></pre>
 <div id="about-this-repository" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> About this
 Repository</h1>
@@ -1794,27 +1788,32 @@ demographiedaten &lt;- tar_read(demographiedaten)
 zeiten &lt;- tar_read(externalinput)$zeiten
 externalinput &lt;- tar_read(externalinput)
 resultslist &lt;- tar_read(results)</code></pre>
-<p>We extracted 109 087 datasets from SurvNet. 73 753 entries fullfilled
+<p>We extracted 109 087 datasets from SurvNet. 73 220 entries fullfilled
 the definition (11 215 had missing dates, 108 entries had an IDs that
-did not lead to an existing person and 24 030 separation orders did not
-begin in the study period). We removed 1 188 entries because they had a
+did not lead to an existing person and 24 563 separation orders did not
+begin in the study period). We removed 371 entries because they had a
 presumed typing error in one of the dates. We also removed 30 duplicated
-isolations and 2 389 duplicated quarantines. For 3 473 quarantines we
+isolations and 2 497 duplicated quarantines. For 3 484 quarantines we
 reduced the length by the overlap with a following isolation period. In
 the demographic data we found 266 123 inhabitants registered in Berlin
 Reinickendorf (18 084 in the age group &lt;7; 27 001 in the age group
 7-17; 158 199 in the age group 18-64 and 62 839 in the age group
 &gt;64).</p>
-<p><em>Analysis of quantity of isolation and quarantines:</em> The local
-public health institute Reinickendorf von Berlin ordered n_i = 24 603
-isolations and 45 014 quarantines. This calculates to 9.2 isolations per
-100 inhabitants and 16.9 quarantines per 100 inhabitants. The number of
-quarantines and isolations by age group and recommendation period can
-bee seen in @ref(tab:agegrouptable)). 46 743 (81.6 %) of persons had one
-spearation order (quarantine or isolation), 9 031 (15.8 %) had two
-spearation orders, 1 366 (2.4 %) had three spearation orders, 156 (0.3
-%) had four spearation orders and 18 (0 %) had five spearation orders -
-the maximum.</p>
+<div id="results-of-statistical-measures" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Results of
+statistical measures</h2>
+<ul>
+<li><em>Analysis of quantity of isolation and quarantines:</em> The
+local public health agency ordered <span class="math inline">\(n_{\text{i}}\)</span> = 24 433 isolations and 45
+335 quarantines. This calculates to 9.2 isolations per 100 inhabitants
+and 17 quarantines per 100 inhabitants. The number of quarantines and
+isolations by age group and recommendation period can bee seen in
+@ref(tab:agegrouptable)). 46 817 (81.5 %) of persons had one spearation
+order (quarantine or isolation), 9 061 (15.8 %) had two spearation
+orders, 1 359 (2.4 %) had three spearation orders, 163 (0.3 %) had four
+spearation orders and 20 (0 %) had five spearation orders - the
+maximum.</li>
+</ul>
 <p><em>Analysis of the duration of isolation quarantines:</em> The
 median duration for isolations was 10 days (interquartile range 8 - 13).
 The duration did change in between different periods of recommendations.
@@ -1826,18 +1825,18 @@ periods of different recommendations and age groups. The median of the
 duration during the recommendation periods were: 9 days for the period
 No. 1, 9 days for the period No. 2, 10 days for the period No. 3 and 4
 days for the period No. 4. See figure @ref(fig:duration). All together
-the public health agency ordered 688 years of isolations and 1 015 years
-of quarantine or 1 702 years in total.</p>
+the public health agency ordered 684 years of isolations and 1 031 years
+of quarantine or 1 714 years in total.</p>
 <p><em>Analysis of the ratio of contact persons per case:</em> The
-overal ratio of contact persons was 1.87. In the period of the contact
-person defintion no. 1 the ratio was 2.82 in the period no. 2 the ratio
+overal ratio of contact persons was 1.89. In the period of the contact
+person defintion no. 1 the ratio was 2.88 in the period no. 2 the ratio
 was 1.96 and in the period no. 3 the ratio was: 0.95.</p>
 <p><em>Analysis of isolations following quarantines:</em> In the time
-period from the start of the recording of quarantines 3 448 of 23 863
-isolations had a directly preceeding quarantine and 530 a preceeding
-quarantine in the 1 to 7 days before the isolations. 3 471 of 44 623
+period from the start of the recording of quarantines 3 483 of 23 892
+isolations had a directly preceeding quarantine and 532 a preceeding
+quarantine in the 1 to 7 days before the isolations. 3 483 of 45 272
 quarantines in that time period had a directly following isolation
-(contained case) and 538 a isolation following in the days 1 to 7 after
+(contained case) and 535 a isolation following in the days 1 to 7 after
 the quarantine (non-contained case). This did differ between different
 periods and recommendations see figure
 @ref(fig:adjoining-quarantines-and-isolation). Assuming a total
@@ -1845,333 +1844,329 @@ prevention of transmission by the quarantine order this leads to a
 directly measurable reduction of 0.15 on the R value.</p>
 <p><em>Analysis of timeliness:</em> Our approximation of the median time
 period between the last contact and the beginning of the quarantine
-order was 4 (interquartile range 2 - 6) during the time periods when 14
+order was 4 (interquartile range 1 - 6) during the time periods when 14
 days were recommended as a quarantine duration.</p>
-<pre class="r"><code># df %&gt;% 
-#   select(dauer, adjoiningQandI, result) %&gt;% 
-#   group_by(result) %&gt;% 
-#   summarise(sum(dauer))
-#   ggplot(aes(x = dauer, y = adjoiningQandI)) +
-#   geom_col()</code></pre>
-</div>
-<div id="tables" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Tables</h1>
-<pre class="r"><code>resultslist$agegroup_table %&gt;% 
-  select(-q_sum_in_y, -i_sum_in_y, -toolatep) %&gt;% 
-  kable()</code></pre>
-<table>
-<colgroup>
-<col width="9%" />
-<col width="6%" />
-<col width="5%" />
-<col width="5%" />
-<col width="4%" />
-<col width="4%" />
-<col width="3%" />
-<col width="4%" />
-<col width="15%" />
-<col width="15%" />
-<col width="9%" />
-<col width="9%" />
-<col width="7%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">AgeGroup</th>
-<th align="right">N</th>
-<th align="right">q_n</th>
-<th align="right">i_n</th>
-<th align="right">q_p</th>
-<th align="right">i_p</th>
-<th align="right">q_d</th>
-<th align="right">i_d</th>
-<th align="right">q_sum_in_d_per_p</th>
-<th align="right">i_sum_in_d_per_p</th>
-<th align="right">contained</th>
-<th align="right">containedp</th>
-<th align="right">toolate</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">0 to 6</td>
-<td align="right">18084</td>
-<td align="right">9166</td>
-<td align="right">1403</td>
-<td align="right">50.7</td>
-<td align="right">7.8</td>
-<td align="right">8.1</td>
-<td align="right">11.2</td>
-<td align="right">4.1</td>
-<td align="right">0.9</td>
-<td align="right">438</td>
-<td align="right">4.8</td>
-<td align="right">99</td>
-</tr>
-<tr class="even">
-<td align="left">7 to 17</td>
-<td align="right">27001</td>
-<td align="right">17454</td>
-<td align="right">4016</td>
-<td align="right">64.6</td>
-<td align="right">14.9</td>
-<td align="right">7.8</td>
-<td align="right">11.1</td>
-<td align="right">5.1</td>
-<td align="right">1.7</td>
-<td align="right">869</td>
-<td align="right">5.0</td>
-<td align="right">197</td>
-</tr>
-<tr class="odd">
-<td align="left">18 to 64</td>
-<td align="right">158199</td>
-<td align="right">16439</td>
-<td align="right">16146</td>
-<td align="right">10.4</td>
-<td align="right">10.2</td>
-<td align="right">8.7</td>
-<td align="right">10.0</td>
-<td align="right">0.9</td>
-<td align="right">1.0</td>
-<td align="right">1822</td>
-<td align="right">11.1</td>
-<td align="right">208</td>
-</tr>
-<tr class="even">
-<td align="left">65 to 110</td>
-<td align="right">62839</td>
-<td align="right">1955</td>
-<td align="right">3038</td>
-<td align="right">3.1</td>
-<td align="right">4.8</td>
-<td align="right">8.4</td>
-<td align="right">9.4</td>
-<td align="right">0.3</td>
-<td align="right">0.5</td>
-<td align="right">343</td>
-<td align="right">17.5</td>
-<td align="right">34</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>namesoftable &lt;- resultslist$agegroup_table %&gt;% 
-  select(-q_sum_in_y, -i_sum_in_y, -toolatep) %&gt;% 
-  rename(Q_Def = AgeGroup) %&gt;% 
-  names()  
-
-
-resultslist$qdef_table %&gt;% 
-  select(-q_sum_in_y, -i_sum_in_y, -toolatep) %&gt;% 
-  mutate(N = &quot;-&quot;, q_p = &quot;-&quot;, i_p = &quot;-&quot;, q_sum_in_d_per_p = &quot;-&quot;, i_sum_in_d_per_p = &quot;-&quot;)  %&gt;% 
-  select(namesoftable) %&gt;% 
-  kable()</code></pre>
-<pre><code>## Note: Using an external vector in selections is ambiguous.
-## ℹ Use `all_of(namesoftable)` instead of `namesoftable` to silence this message.
-## ℹ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.
-## This message is displayed once per session.</code></pre>
-<table style="width:100%;">
-<colgroup>
-<col width="7%" />
-<col width="2%" />
-<col width="5%" />
-<col width="5%" />
-<col width="3%" />
-<col width="3%" />
-<col width="3%" />
-<col width="4%" />
-<col width="16%" />
-<col width="16%" />
-<col width="9%" />
-<col width="10%" />
-<col width="7%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Q_Def</th>
-<th align="left">N</th>
-<th align="right">q_n</th>
-<th align="right">i_n</th>
-<th align="left">q_p</th>
-<th align="left">i_p</th>
-<th align="right">q_d</th>
-<th align="right">i_d</th>
-<th align="left">q_sum_in_d_per_p</th>
-<th align="left">i_sum_in_d_per_p</th>
-<th align="right">contained</th>
-<th align="right">containedp</th>
-<th align="right">toolate</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Q_Def_1</td>
-<td align="left">-</td>
-<td align="right">29340</td>
-<td align="right">10862</td>
-<td align="left">-</td>
-<td align="left">-</td>
-<td align="right">8.9</td>
-<td align="right">8.3</td>
-<td align="left">-</td>
-<td align="left">-</td>
-<td align="right">1767</td>
-<td align="right">6</td>
-<td align="right">204</td>
-</tr>
-<tr class="even">
-<td align="left">Q_Def_3</td>
-<td align="left">-</td>
-<td align="right">10885</td>
-<td align="right">11297</td>
-<td align="left">-</td>
-<td align="left">-</td>
-<td align="right">5.9</td>
-<td align="right">11.8</td>
-<td align="left">-</td>
-<td align="left">-</td>
-<td align="right">1047</td>
-<td align="right">10</td>
-<td align="right">282</td>
-</tr>
-<tr class="odd">
-<td align="left">Q_Def_2</td>
-<td align="left">-</td>
-<td align="right">4789</td>
-<td align="right">2444</td>
-<td align="left">-</td>
-<td align="left">-</td>
-<td align="right">9.5</td>
-<td align="right">11.4</td>
-<td align="left">-</td>
-<td align="left">-</td>
-<td align="right">658</td>
-<td align="right">14</td>
-<td align="right">52</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>resultslist$total_table</code></pre>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["N"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["total"],"name":[2],"type":["chr"],"align":["left"]},{"label":["q_n"],"name":[3],"type":["int"],"align":["right"]},{"label":["i_n"],"name":[4],"type":["int"],"align":["right"]},{"label":["q_p"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["i_p"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["q_d"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["i_d"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["q_sum_in_y"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["i_sum_in_y"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["contained"],"name":[11],"type":["int"],"align":["right"]},{"label":["containtedp"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["toolate"],"name":[13],"type":["int"],"align":["right"]}],"data":[{"1":"266123","2":"total","3":"45014","4":"24603","5":"16.9","6":"9.2","7":"8.2","8":"10.2","9":"1014.6","10":"687.6","11":"3472","12":"1.3","13":"538"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
 </div>
 </div>
-<div id="graphs" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Graphs</h1>
-<div id="graph-timeliness-over-time" class="section level2" number="4.1">
-<h2><span class="header-section-number">4.1</span> Graph timeliness over
-time</h2>
-<pre class="r"><code># df %&gt;%
-#   filter(DatensatzKategorie == &quot;Kontakt-COVID-19&quot;) %&gt;%
-#   mutate(Q_Duration_number = str_split(Q_Duration_shortvalue, &quot; &quot;, simplify = TRUE)[1]) %&gt;%
-#   mutate(Q_Duration_number = as.numeric(Q_Duration_number)) %&gt;%
-#   filter(Q_Duration_number == 14) %&gt;%
-#   mutate(Q_timeliness = dauer - Q_Duration_number) %&gt;%
-#   group_by(Meldewoche) %&gt;%
-#   summarise(timeliniess = mean(Q_timeliness))
-#   ggplot(aes(Meldewoche, timeliniess)) +
-#   ester_theme() +
-#   geom_col(fill = brewer.pal(3, mypalette)[2])</code></pre>
-</div>
-<div id="graph-incidence" class="section level2" number="4.2">
-<h2><span class="header-section-number">4.2</span> Graph: Incidence</h2>
-</div>
-<div id="graph-quarantine-duration-by-age-group" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> Graph: Quarantine
-duration by age group</h2>
-</div>
-<div id="graph-adjoining-quarantines-and-isolation" class="section level2" number="4.4">
-<h2><span class="header-section-number">4.4</span> Graph: Adjoining
-quarantines and isolation</h2>
-</div>
-</div>
-<div id="session-info" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Session Info</h1>
-<pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>## R version 4.0.4 (2021-02-15)
-## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 21.10
+<div id="all-results" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> All results</h1>
+<pre class="r"><code>resultslist</code></pre>
+<pre><code>## $queried
+## [1] 109087
 ## 
-## Matrix products: default
-## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
-## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+## $emptydates
+## [1] 11215
 ## 
-## locale:
-##  [1] LC_CTYPE=de_DE.UTF-8       LC_NUMERIC=C              
-##  [3] LC_TIME=de_DE.UTF-8        LC_COLLATE=de_DE.UTF-8    
-##  [5] LC_MONETARY=de_DE.UTF-8    LC_MESSAGES=de_DE.UTF-8   
-##  [7] LC_PAPER=de_DE.UTF-8       LC_NAME=C                 
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-## [11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+## $wrongid
+## [1] 108
 ## 
-## attached base packages:
-## [1] graphics  grDevices datasets  grid      stats     utils     methods  
-## [8] base     
+## $outofrange
+## [1] 24563
 ## 
-## other attached packages:
-##  [1] forcats_0.5.1              stringr_1.4.0             
-##  [3] dplyr_1.0.8                purrr_0.3.4               
-##  [5] readr_2.1.2                tidyr_1.2.0               
-##  [7] tibble_3.1.6               ggplot2_3.3.5             
-##  [9] tidyverse_1.3.1            targets_0.11.0            
-## [11] gridExtra_2.3              tidyquant_1.0.3           
-## [13] quantmod_0.4.18            TTR_0.24.3                
-## [15] PerformanceAnalytics_2.0.4 xts_0.12.1                
-## [17] zoo_1.8-9                  RColorBrewer_1.1-3        
-## [19] pander_0.6.5               knitr_1.38                
-## [21] mmtable2_0.1.3             DescTools_0.99.44         
-## [23] vistime_1.2.1              lubridate_1.8.0           
-## [25] janitor_2.1.0              ggthemes_4.2.4            
-## [27] here_1.0.1                
+## $definitionfullfilled
+## [1] 73220
 ## 
-## loaded via a namespace (and not attached):
-##  [1] assertive.base_0.0-9       colorspace_2.0-3          
-##  [3] ellipsis_0.3.2             class_7.3-18              
-##  [5] rprojroot_2.0.3            snakecase_0.11.0          
-##  [7] fs_1.5.2                   gld_2.6.4                 
-##  [9] rstudioapi_0.13            proxy_0.4-26              
-## [11] ggrepel_0.9.1              fansi_1.0.3               
-## [13] mvtnorm_1.1-3              xml2_1.3.3                
-## [15] codetools_0.2-18           rootSolve_1.8.2.3         
-## [17] jsonlite_1.8.0             gt_0.4.0                  
-## [19] broom_0.8.0                dbplyr_2.1.1              
-## [21] compiler_4.0.4             httr_1.4.2                
-## [23] backports_1.4.1            assertthat_0.2.1          
-## [25] Matrix_1.3-2               fastmap_1.1.0             
-## [27] lazyeval_0.2.2             cli_3.2.0                 
-## [29] htmltools_0.5.2            tools_4.0.4               
-## [31] igraph_1.3.0               gtable_0.3.0              
-## [33] glue_1.6.2                 lmom_2.8                  
-## [35] Rcpp_1.0.8.3               cellranger_1.1.0          
-## [37] jquerylib_0.1.4            vctrs_0.4.1               
-## [39] xfun_0.30                  ps_1.6.0                  
-## [41] rvest_1.0.2                lifecycle_1.0.1           
-## [43] renv_0.15.4                pacman_0.5.1              
-## [45] MASS_7.3-53.1              scales_1.2.0              
-## [47] hms_1.1.1                  expm_0.999-6              
-## [49] yaml_2.3.5                 curl_4.3.2                
-## [51] Exact_3.1                  sass_0.4.1                
-## [53] stringi_1.7.6              highr_0.9                 
-## [55] e1071_1.7-9                boot_1.3-27               
-## [57] rlang_1.0.2                pkgconfig_2.0.3           
-## [59] evaluate_0.15              lattice_0.20-41           
-## [61] htmlwidgets_1.5.4          assertive.properties_0.0-4
-## [63] processx_3.5.3             tidyselect_1.1.2          
-## [65] magrittr_2.0.3             R6_2.5.1                  
-## [67] generics_0.1.2             base64url_1.4             
-## [69] DBI_1.1.2                  pillar_1.7.0              
-## [71] haven_2.4.3                withr_2.5.0               
-## [73] modelr_0.1.8               crayon_1.5.1              
-## [75] assertive.types_0.0-3      Quandl_2.11.0             
-## [77] utf8_1.2.2                 plotly_4.10.0             
-## [79] tzdb_0.3.0                 rmarkdown_2.13            
-## [81] readxl_1.4.0               data.table_1.14.2         
-## [83] callr_3.7.0                reprex_2.0.1              
-## [85] digest_0.6.29              munsell_0.5.0             
-## [87] viridisLite_0.4.0          bslib_0.3.1               
-## [89] quadprog_1.5-8</code></pre>
+## $typingerror
+## [1] 371
+## 
+## $deleted_duplicates_table
+##  DatensatzKategorie deleted_duplicates
+##            COVID-19                 30
+##    Kontakt-COVID-19               2497
+## 
+## $deleted_duplicates_quarantines
+## [1] 2497
+## 
+## $deleted_duplicates_isolations
+## [1] 30
+## 
+## $adjustedQuarantines
+## [1] 3484
+## 
+## $N
+## [1] 266123
+## 
+## $N_0_6
+## [1] 18084
+## 
+## $N_7_17
+## [1] 27001
+## 
+## $N_18_64
+## [1] 158199
+## 
+## $N_65_110
+## [1] 62839
+## 
+## $I_n
+## [1] 24433
+## 
+## $Q_n
+## [1] 45335
+## 
+## $I_p
+## [1] 9.2
+## 
+## $Q_p
+## [1] 17
+## 
+## $totaltime_groups
+## # A tibble: 8 × 7
+##   DatensatzKategor… AgeGroup completeduratio… completeduratio…  value percentage
+##   &lt;chr&gt;             &lt;chr&gt;               &lt;dbl&gt;            &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;
+## 1 COVID-19          0 to 6              15491             42.4  18084        6.2
+## 2 COVID-19          7 to 17             44356            122.   27001       17.8
+## 3 COVID-19          18 to 64           161215            442.  158199       64.6
+## 4 COVID-19          65 to 1…            28445             77.9  62839       11.4
+## 5 Kontakt-COVID-19  0 to 6              74977            205.   18084       19.9
+## 6 Kontakt-COVID-19  7 to 17            139069            381.   27001       37  
+## 7 Kontakt-COVID-19  18 to 64           145456            399.  158199       38.7
+## 8 Kontakt-COVID-19  65 to 1…            16712             45.8  62839        4.4
+## # … with 1 more variable: completeduration_person &lt;dbl&gt;
+## 
+## $QundIproPerson_table
+## # A tibble: 5 × 3
+##   number     n     p
+##    &lt;int&gt; &lt;int&gt; &lt;dbl&gt;
+## 1      1 46817  81.5
+## 2      2  9061  15.8
+## 3      3  1359   2.4
+## 4      4   163   0.3
+## 5      5    20   0  
+## 
+## $QundIproPerson_1_order_n
+## [1] 46817
+## 
+## $QundIproPerson_1_order_p
+## [1] 81.5
+## 
+## $QundIproPerson_2_order_n
+## [1] 9061
+## 
+## $QundIproPerson_2_order_p
+## [1] 15.8
+## 
+## $QundIproPerson_3_order_n
+## [1] 1359
+## 
+## $QundIproPerson_3_order_p
+## [1] 2.4
+## 
+## $QundIproPerson_4_order_n
+## [1] 163
+## 
+## $QundIproPerson_4_order_p
+## [1] 0.3
+## 
+## $QundIproPerson_5_order_n
+## [1] 20
+## 
+## $QundIproPerson_5_order_p
+## [1] 0
+## 
+## $MedianeDauerI
+##   0%  25%  50%  75% 100% 
+##    1    8   10   13   30 
+## 
+## $MedianeDauerI_Rec
+## # A tibble: 3 × 2
+##   I_Duration   quint
+##   &lt;chr&gt;        &lt;dbl&gt;
+## 1 I_Duration_1    14
+## 2 I_Duration_2     8
+## 3 I_Duration_3    12
+## 
+## $MedianeDauerI_Rec_1
+## 50% 
+##  14 
+## 
+## $MedianeDauerI_Rec_2
+## 50% 
+##   8 
+## 
+## $MedianeDauerI_Rec_3
+## 50% 
+##  12 
+## 
+## $MedianeDauerQ
+##   0%  25%  50%  75% 100% 
+##    1    6    8   11   28 
+## 
+## $MedianeDauerQ_Rec
+## # A tibble: 4 × 2
+##   Q_Duration   quint
+##   &lt;chr&gt;        &lt;dbl&gt;
+## 1 Q_Duration_1     9
+## 2 Q_Duration_2     9
+## 3 Q_Duration_3    10
+## 4 Q_Duration_4     4
+## 
+## $MedianeDauerQ_Rec_1
+## 50% 
+##   9 
+## 
+## $MedianeDauerQ_Rec_2
+## 50% 
+##   9 
+## 
+## $MedianeDauerQ_Rec_3
+## 50% 
+##  10 
+## 
+## $MedianeDauerQ_Rec_4
+## 50% 
+##   4 
+## 
+## $qi_d
+## [1] 625721
+## 
+## $qi_d_in_y
+## [1] 1714
+## 
+## $q_d_in_y
+## [1] 1031
+## 
+## $i_d_in_y
+## [1] 684
+## 
+## $K_F_Verhaeltnis
+## [1] 1.89
+## 
+## $K_F_Verhaeltnis_QDef
+## # A tibble: 3 × 4
+##   q_def   covid_19 kontakt_covid_19 verhaeltnis
+##   &lt;chr&gt;      &lt;int&gt;            &lt;int&gt;       &lt;dbl&gt;
+## 1 Q_Def_1    10402            29965        2.88
+## 2 Q_Def_2     2446             4791        1.96
+## 3 Q_Def_3    11044            10516        0.95
+## 
+## $K_F_Verhaeltnis_QDef_1
+## [1] 2.88
+## 
+## $K_F_Verhaeltnis_QDef_2
+## [1] 1.96
+## 
+## $K_F_Verhaeltnis_QDef_3
+## [1] 0.95
+## 
+## $I_after_Q
+## $I_after_Q$I_correct_after_Q
+## [1] 3483
+## 
+## $I_after_Q$I_too_long_after_Q
+## [1] 532
+## 
+## $I_after_Q$No_I_after_Q
+## [1] 19877
+## 
+## 
+## $I_n_kptime
+## [1] 23892
+## 
+## $Q_with_I_after
+## $Q_with_I_after$I_correct_after_Q
+## [1] 3483
+## 
+## $Q_with_I_after$I_too_long_after_Q
+## [1] 535
+## 
+## $Q_with_I_after$No_I_after_Q
+## [1] 41254
+## 
+## 
+## $Q_n_kptime
+## [1] 45272
+## 
+## $r
+## [1] 0.15
+## 
+## $Q_n_by_QDef
+## # A tibble: 3 × 2
+##   Q_Def       n
+##   &lt;chr&gt;   &lt;int&gt;
+## 1 Q_Def_1 29965
+## 2 Q_Def_2  4791
+## 3 Q_Def_3 10516
+## 
+## $Q_with_correct_I_by_QDef_table
+## # A tibble: 3 × 5
+## # Groups:   Q_Def [3]
+##   Q_Def   result                n     N percentage
+##   &lt;chr&gt;   &lt;chr&gt;             &lt;int&gt; &lt;int&gt;      &lt;dbl&gt;
+## 1 Q_Def_1 I_correct_after_Q  1802 29965          6
+## 2 Q_Def_2 I_correct_after_Q   658  4791         14
+## 3 Q_Def_3 I_correct_after_Q  1024 10516         10
+## 
+## $Q_with_too_late_I_by_QDef_table
+## # A tibble: 3 × 5
+## # Groups:   Q_Def [3]
+##   Q_Def   result                 n     N percentage
+##   &lt;chr&gt;   &lt;chr&gt;              &lt;int&gt; &lt;int&gt;      &lt;dbl&gt;
+## 1 Q_Def_1 I_too_long_after_Q   205 29965        0.7
+## 2 Q_Def_2 I_too_long_after_Q    52  4791        1.1
+## 3 Q_Def_3 I_too_long_after_Q   278 10516        2.6
+## 
+## $Q_n_by_AgeGroup
+## # A tibble: 4 × 2
+##   AgeGroup      n
+##   &lt;ord&gt;     &lt;int&gt;
+## 1 0 to 6     9149
+## 2 7 to 17   17528
+## 3 18 to 64  16678
+## 4 65 to 110  1980
+## 
+## $Q_with_correct_I_by_Agegroup_table
+## # A tibble: 4 × 5
+## # Groups:   AgeGroup [4]
+##   AgeGroup  result                n     N percentage
+##   &lt;ord&gt;     &lt;chr&gt;             &lt;int&gt; &lt;int&gt;      &lt;dbl&gt;
+## 1 0 to 6    I_correct_after_Q   434  9149        4.7
+## 2 7 to 17   I_correct_after_Q   867 17528        4.9
+## 3 18 to 64  I_correct_after_Q  1838 16678       11  
+## 4 65 to 110 I_correct_after_Q   345  1980       17.4
+## 
+## $Q_with_too_late_I_by_Agegroup_table
+## # A tibble: 4 × 5
+## # Groups:   AgeGroup [4]
+##   AgeGroup  result                 n     N percentage
+##   &lt;ord&gt;     &lt;chr&gt;              &lt;int&gt; &lt;int&gt;      &lt;dbl&gt;
+## 1 0 to 6    I_too_long_after_Q    97  9149        1.1
+## 2 7 to 17   I_too_long_after_Q   194 17528        1.1
+## 3 18 to 64  I_too_long_after_Q   210 16678        1.3
+## 4 65 to 110 I_too_long_after_Q    34  1980        1.7
+## 
+## $q_timeliness_median
+##   0%  25%  50%  75% 100% 
+##    0    1    4    6   12 
+## 
+## $agegroup_table
+## # A tibble: 4 × 16
+##   AgeGroup       N   q_n   i_n   q_p   i_p   q_d   i_d q_sum_in_y i_sum_in_y
+##   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+## 1 0 to 6     18084  9149  1383  50.6   7.6   8.2  11.2      205.        42.4
+## 2 7 to 17    27001 17528  3983  64.9  14.8   7.9  11.1      381        122. 
+## 3 18 to 64  158199 16678 16041  10.5  10.1   8.7  10.1      398.       442. 
+## 4 65 to 110  62839  1980  3026   3.2   4.8   8.4   9.4       45.8       77.9
+## # … with 6 more variables: q_sum_in_d_per_p &lt;dbl&gt;, i_sum_in_d_per_p &lt;dbl&gt;,
+## #   contained &lt;int&gt;, containedp &lt;dbl&gt;, toolate &lt;int&gt;, toolatep &lt;dbl&gt;
+## 
+## $qdef_table
+## # A tibble: 3 × 16
+##   Q_Def        N   q_n   i_n   q_p   i_p   q_d   i_d q_sum_in_y i_sum_in_y
+##   &lt;chr&gt;    &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+## 1 Q_Def_1 266123 29973 10876  11.3   4.1   8.9   8.3       734.      248. 
+## 2 Q_Def_2 266123  4791  2446   1.8   0.9   9.5  11.4       124.       76.2
+## 3 Q_Def_3 266123 10571 11111   4     4.2   5.9  11.8       172.      360. 
+## # … with 6 more variables: q_sum_in_d_per_p &lt;dbl&gt;, i_sum_in_d_per_p &lt;dbl&gt;,
+## #   contained &lt;int&gt;, containedp &lt;dbl&gt;, toolate &lt;int&gt;, toolatep &lt;dbl&gt;
+## 
+## $total_table
+## # A tibble: 1 × 16
+##   total      N   q_n   i_n   q_p   i_p   q_d   i_d q_sum_in_y i_sum_in_y
+##   &lt;chr&gt;  &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+## 1 total 266123 45335 24433    17   9.2   8.3  10.2      1031.       684.
+## # … with 6 more variables: q_sum_in_d_per_p &lt;dbl&gt;, i_sum_in_d_per_p &lt;dbl&gt;,
+## #   contained &lt;int&gt;, containedp &lt;dbl&gt;, toolate &lt;int&gt;, toolatep &lt;dbl&gt;</code></pre>
 </div>
 
 

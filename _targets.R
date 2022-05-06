@@ -32,9 +32,10 @@ list(
   # numerical results
   tar_target(results, get_numerical_results(df, demographiedaten, externalinput)),
   # graphs
-  tar_target(plot_incidence, create_figure_incidence(df, demographiedaten), format = "file"),
   tar_target(plot_duration, create_figure_duration(df, demographiedaten), format = "file"),
-  tar_target(plot_adjoining, create_figure_adjoining(df, demographiedaten, resultslist, externalinput), format = "file"),
-  tar_target(plot_epicurve, create_figure_epicurve(df, demographiedaten, resultslist, externalinput), format = "file")
+  tar_target(plot_adjoining, create_figure_adjoining(df), format = "file"),
+  tar_target(plot_epicurve, create_figure_epicurve(df, demographiedaten, results, externalinput), format = "file"),
+  tar_target(plot_inclusionexclusion, create_figure_inclusionexclusion(results), format = "file"),
+  tar_target(plot_measures_table, create_measures_table(results), format = "file")
 
 )

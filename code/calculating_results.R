@@ -321,7 +321,7 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
 
 # Generate table 2 -----------------------------------------------------------------
 
-# ├ Age group table ----
+  # ├ Age group table ----
   
   resultslist$agegroup_table <- 
     demographiedaten %>% 
@@ -351,15 +351,15 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
                 group_by(AgeGroup) %>% 
                 summarise(i_d = round(mean(dauer),1)), by = "AgeGroup") %>% 
     # add sum of quarantine days
-    left_join(df %>% 
-                filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
-                group_by(AgeGroup) %>% 
-                summarise(q_sum_in_y = round(sum(dauer)/365,1)), by = "AgeGroup") %>% 
+    left_join(df %>%
+                filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
+                group_by(AgeGroup) %>%
+                summarise(q_sum_in_y = round(sum(dauer)/365,1)), by = "AgeGroup") %>%
     # add sum of isolation days
-    left_join(df %>% 
-                filter(DatensatzKategorie == "COVID-19") %>% 
-                group_by(AgeGroup) %>% 
-                summarise(i_sum_in_y = round(sum(dauer)/365,1)), by = "AgeGroup") %>% 
+    left_join(df %>%
+                filter(DatensatzKategorie == "COVID-19") %>%
+                group_by(AgeGroup) %>%
+                summarise(i_sum_in_y = round(sum(dauer)/365,1)), by = "AgeGroup") %>%
     # quarantine days per person
     mutate(q_sum_in_d_per_p = round(q_sum_in_y*365/N,1)) %>%     
     # quarantine days per person
@@ -381,6 +381,7 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
 resultslist$qdef_table <- df %>%
     select(Q_Def) %>% 
     distinct() %>% 
+    mutate(N = demographiedaten %>% summarise(N = sum(value)) %>% pull()) %>% 
     # add number of quarantines
     left_join(df %>% 
                 filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
@@ -391,6 +392,10 @@ resultslist$qdef_table <- df %>%
                 filter(DatensatzKategorie == "COVID-19") %>% 
                 count(Q_Def) %>% 
                 rename(i_n = n), by = "Q_Def") %>% 
+    # add percentage of quarantines
+    mutate(q_p = round(100 * q_n / N,1)) %>% 
+    # add percentage of isolations
+    mutate(i_p = round(100 * i_n / N,1)) %>% 
     # add duration of quarantines
     left_join(df %>% 
                 filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
@@ -411,6 +416,10 @@ resultslist$qdef_table <- df %>%
                 filter(DatensatzKategorie == "COVID-19") %>% 
                 group_by(Q_Def) %>% 
                 summarise(i_sum_in_y = round(sum(dauer)/365,1)), by = "Q_Def") %>% 
+    # quarantine days per person
+    mutate(q_sum_in_d_per_p = round(q_sum_in_y*365/N,1)) %>%     
+    # quarantine days per person
+    mutate(i_sum_in_d_per_p = round(i_sum_in_y*365/N,1)) %>% 
     # contained cases
     left_join(resultslist$Q_with_correct_I_by_QDef_table %>% 
                 select(Q_Def, contained = n), by = "Q_Def") %>% 
@@ -428,7 +437,8 @@ resultslist$qdef_table <- df %>%
   resultslist$total_table <-  demographiedaten %>% 
     # add number of quarnatines
     summarise(N = sum(value)) %>% 
-    mutate(total = "total") %>% 
+    mutate(total = "total") %>%
+    select(total, N) %>% 
     bind_cols(df %>% 
                 filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
                 count() %>% 
@@ -471,22 +481,20 @@ resultslist$qdef_table <- df %>%
                 filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
                 count(result) %>% 
                 filter(result == "I_correct_after_Q") %>% 
-                bind_cols(N = resultslist$N) %>% 
-                mutate(percentage = round(100*n/N,1)) %>% 
-                select(contained = n, containedp = percentage)
+                select(contained = n)
     ) %>% 
+    mutate(containedp = round(100*contained/q_n,1)) %>% 
     # non-contained cases
     bind_cols(df %>%
                 filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
                 count(result) %>% 
                 filter(result == "I_too_long_after_Q") %>% 
-                bind_cols(N = resultslist$N) %>% 
-                mutate(percentage = round(100*n/N,1)) %>% 
                 select(toolate = n)
-    ) 
-  
+    ) %>% 
+    mutate(toolatep = round(100*toolate/q_n,1))
 
-# End of function ---------------------------------------------------------
+  
+  # End of function ---------------------------------------------------------
 
 
   resultslist

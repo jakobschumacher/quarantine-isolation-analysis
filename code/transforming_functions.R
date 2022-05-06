@@ -253,9 +253,9 @@ find_adjoin <- function(df_overlapped) {
   df <- bind_rows(doppelte_anonIDs_df_bereinigt, einzelne_anonIDs_df)
 }
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Final cleaning
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# Final cleaning ----------------------------------------------------------
+
 
 final_cleaning <- function(df_adjoined, externalinput){
   df_adjoined %>% 
@@ -268,5 +268,5 @@ final_cleaning <- function(df_adjoined, externalinput){
     mutate(result = ifelse(adjoiningQandI == 0, "I_correct_after_Q", result)) %>% 
     mutate(result = ifelse(adjoiningQandI > 0, "I_too_long_after_Q", result)) %>% 
     mutate(result = ifelse(is.na(adjoiningQandI), "No_I_after_Q", result)) %>% 
-    mutate(result = ifelse(AbsonderungVon < externalinput$StartDateKP | AbsonderungVon > externalinput$EndDateKP, "Not_applicable", result)) 
+    mutate(result = ifelse(AbsonderungVon < externalinput$StartDateKP | AbsonderungVon > externalinput$EndDateKP, "outside_of_kp_time", result)) 
 }

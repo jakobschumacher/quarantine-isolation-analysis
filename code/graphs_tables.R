@@ -4,7 +4,7 @@ ester_theme <- function() {
     panel.background = element_rect(fill = "white"),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    # text = element_text(family = "PT-Regular"),
+    # text = element_text(family = "arial"),
     legend.position = "bottom",
     legend.direction = "horizontal"
   )
@@ -16,62 +16,18 @@ ester_theme <- function() {
 # https://coolors.co/00759c
 
 # Create colour palette for ggplot
-mypalette = 'Set1'
 colourquarantine = "#00759c"
 colourisolation = "#9E2800" 
+triplecolours <- c("#009E5C", "#00759C", "#9E2800")
+
   
-
-
-
-create_figure_incidence <- function(df, demographiedaten){
-  # Quarantines and isolation by population per age group
-  incidence <- df %>%
-    group_by(AgeGroup, DatensatzKategorie) %>%
-    summarise(n = n(), .groups = 'drop') %>%
-    left_join(demographiedaten, by= c("AgeGroup" = "name") ) %>%
-    rename(N = value) %>%
-    mutate(incidence = round(100*n/N)) %>%
-    mutate(DatensatzKategorie = recode_factor(DatensatzKategorie, "COVID-19" = "isolation", "Kontakt-COVID-19" = "quarantine"))
-p1 <- incidence %>%
-  mutate(AgeGroup = recode_factor(AgeGroup, "0 to 6" = "0 to 6", "7 to 17" = "7 to 17", "18 to 64" = "18 to 64", "65 to 110" = "65 to 110", .ordered = TRUE)) %>%
-  filter(DatensatzKategorie == "isolation") %>%
-  mutate(labelvalue = paste(incidence, "%")) %>%
-  ggplot(aes(x=AgeGroup, y=incidence, fill=DatensatzKategorie)) +
-  ester_theme() +
-  geom_col() +
-  scale_fill_brewer(palette = mypalette) +
-  geom_text(aes(label = labelvalue), nudge_y = 3) +
-  xlab("") +
-  ylab("isolations per 100 inhabitants") +
-  ggtitle("Isolations by age group") +
-  theme(legend.position = "none")
-p2 <- incidence %>%
-  mutate(AgeGroup = recode_factor(AgeGroup, "0 to 6" = "0 to 6", "7 to 17" = "7 to 17", "18 to 64" = "18 to 64", "65 to 110" = "65 to 110", .ordered = TRUE)) %>%
-  filter(DatensatzKategorie == "quarantine") %>%
-  mutate(labelvalue = paste(incidence, "%")) %>%
-  ggplot(aes(x=AgeGroup, y=incidence, fill=DatensatzKategorie)) +
-  ester_theme() +
-  geom_col(fill = brewer.pal(3, mypalette)[2]) +
-  # scale_fill_brewer(palette = mypalette[2]) +
-  geom_text(aes(label = labelvalue), nudge_y = 3) +
-  xlab("") +
-  ylab("quarantines per 100 inhabitants") +
-  ggtitle("Quarantine by age group") +
-  theme(legend.position = "none")
-
-p_gesamt <- grid.arrange(p1,p2)
-ggsave("graph/incidence.eps", p_gesamt, width = 7, height = 7)
-"graph/incidence.eps"
-
-}
-
-
 
 
 create_figure_duration <- function(df, demographiedaten){
   colourquarantine = "#00759c"
   colourisolation = "#9E2800" 
-p1 <- df %>%
+
+  p1 <- df %>%
   filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
   filter(!is.na(Q_Duration)) %>% 
   group_by(AgeGroup) %>% 
@@ -107,101 +63,56 @@ ggsave("graph/duration.eps", p_gesamt)
 
 
 
+create_figure_adjoining <- function(df) {
 
-
-
-create_figure_adjoining <- function(df, demographiedaten, resultslist, externalinput){
+  triplecolours <- c("#009E5C", "#00759C", "#9E2800")
   
-  ueberlappendeQundI <- df %>%
-    filter(AbsonderungVon > externalinput$StartDateKP & AbsonderungVon < externalinput$EndDateKP) %>% 
-    group_by(DatensatzKategorie, adjoiningQandI, AgeGroup, Q_Def) %>%
-    count() %>% 
-    mutate(result = NA) %>% 
-    mutate(result = ifelse(adjoiningQandI == 0, "I_correct_after_Q", result)) %>% 
-    mutate(result = ifelse(adjoiningQandI > 0, "I_too_long_after_Q", result)) %>% 
-    mutate(result = ifelse(is.na(adjoiningQandI), "No_I_after_Q", result)) 
-  
-  
-p1 <- ueberlappendeQundI %>%
-  filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
-  group_by(Q_Def, result) %>%
-  summarise(n = sum(n)) %>%
-  mutate(percentage = prop.table(n)*100) %>%
-  ungroup() %>%
-  filter(result == "I_correct_after_Q" | result == "I_too_long_after_Q") %>%
+  p1 <-   df %>% 
+  filter(DatensatzKategorie == "COVID-19") %>% 
+  filter(result != "outside_of_kp_time") %>%
   mutate(Q_Def = recode_factor(Q_Def, "Q_Def_1" = "Def_1", "Q_Def_2" = "Def_2", "Q_Def_3" = "Def_3", .ordered = TRUE)) %>%
-  mutate(result = recode_factor(result, "I_too_long_after_Q" = "Isolation missed", "I_correct_after_Q" = "Isolation starts after quarantine", .ordered = TRUE)) %>%
-  ggplot(aes(x=Q_Def, y = percentage, fill = result)) +
-  geom_col() +
+  mutate(result = recode_factor(result, "I_too_long_after_Q" = "Isolation missed", "I_correct_after_Q" = "Isolation starts after quarantine", .ordered = TRUE)) %>% 
+  group_by(Q_Def, AgeGroup, result) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Q_Def, AgeGroup) %>%
+  mutate(p = round(100*count/sum(count))) %>%
+  filter(result != "No_I_after_Q") %>%
+  ggplot(aes(x = AgeGroup, y = p)) +
+  geom_col(fill = triplecolours[2]) +
+  facet_wrap(~Q_Def) +
   ester_theme() +
-  scale_fill_brewer(palette=mypalette) +
-  scale_y_continuous(limits = c(0,21)) +
-  ylab("%") +
-  xlab("Contact person definition period") +
-  theme(legend.position = "none")
-
-p2 <- ueberlappendeQundI %>%
-  filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
-  group_by(AgeGroup, result) %>%
-  summarise(n = sum(n)) %>%
-  mutate(percentage = prop.table(n)*100) %>%
-  ungroup() %>%
-  filter(result == "I_correct_after_Q" | result == "I_too_long_after_Q") %>%
-  mutate(result = recode_factor(result, "I_too_long_after_Q" = "Isolation missed", "I_correct_after_Q" = "Isolation starts after quarantine", .ordered = TRUE)) %>%
-  ggplot(aes(x=AgeGroup, y = percentage, fill = result)) +
-  geom_col() +
-  ester_theme() +
-  scale_fill_brewer(palette=mypalette) +
-  scale_y_continuous(limits = c(0,21)) +
   ylab("%") +
   xlab("Age group") +
-  theme(legend.position = "none")
-
-p3 <- ueberlappendeQundI %>%
-  filter(DatensatzKategorie == "COVID-19") %>%
-  group_by(Q_Def, result) %>%
-  summarise(n = sum(n)) %>%
-  mutate(percentage = prop.table(n)*100) %>%
-  ungroup() %>%
-  filter(result == "I_correct_after_Q" | result == "I_too_long_after_Q") %>%
+  theme(legend.position = "none")  
+                                   
+                                   
+p2 <- df %>% 
+  filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
+  filter(result != "outside_of_kp_time") %>%
   mutate(Q_Def = recode_factor(Q_Def, "Q_Def_1" = "Def_1", "Q_Def_2" = "Def_2", "Q_Def_3" = "Def_3", .ordered = TRUE)) %>%
-  mutate(result = recode_factor(result, "I_too_long_after_Q" = "Isolation missed", "I_correct_after_Q" = "Isolation starts after quarantine", .ordered = TRUE)) %>%
-  ggplot(aes(x=Q_Def, y = percentage)) +
+  mutate(result = recode_factor(result, "I_too_long_after_Q" = "Isolation 1 to 7 days after quarantine", "I_correct_after_Q" = "Isolation directly after quarantine", .ordered = TRUE)) %>% 
+  group_by(Q_Def, AgeGroup, result) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Q_Def, AgeGroup) %>%
+  mutate(p = round(100*count/sum(count))) %>%
+  filter(result != "No_I_after_Q") %>%
+  ggplot(aes(x = AgeGroup, y = p, fill = result)) +
   geom_col() +
+  facet_wrap(~Q_Def) +
   ester_theme() +
-  scale_y_continuous(limits = c(0,40)) +
-  scale_fill_brewer(palette=mypalette) +
-  ylab("%") +
-  xlab("Contact person definition period") +
-  theme(legend.position = "none")
-
-p4 <- ueberlappendeQundI %>%
-  filter(DatensatzKategorie == "COVID-19") %>%
-  group_by(AgeGroup, result) %>%
-  summarise(n = sum(n)) %>%
-  mutate(percentage = prop.table(n)*100) %>%
-  ungroup() %>%
-  filter(result == "I_correct_after_Q" | result == "I_too_long_after_Q") %>%
-  mutate(result = recode_factor(result, "I_too_long_after_Q" = "Isolation missed", "I_correct_after_Q" = "Isolation starts after quarantine", .ordered = TRUE)) %>%
-  ggplot(aes(x=AgeGroup, y = percentage)) +
-  geom_col() +
-  ester_theme() +
-  scale_fill_brewer(palette=mypalette) +
-  scale_y_continuous(limits = c(0,40)) +
   ylab("%") +
   xlab("Age group") +
-  theme(legend.position = "none")
+  scale_fill_manual('', values = c(triplecolours[3], triplecolours[1])) 
 
-p_gesamt_1 <- grid.arrange(p1,p2,
+p_gesamt_1 <- grid.arrange(p1,
+                           top = grid::textGrob("Percentage of isolations that were preceded by a quarantine period", gp = grid::gpar(fontsize=14)),
+                           ncol = 1)
+p_gesamt_2 <- grid.arrange(p2,
                            top = grid::textGrob("Percentage of quarantines that were followed by an isolation period", gp = grid::gpar(fontsize=14)),
-                           ncol = 2)
-p_gesamt_2 <- grid.arrange(p3,p4,
-                           top = grid::textGrob("Percentage of isolations that were preceeded by a quarantine period", gp = grid::gpar(fontsize=14)),
-                           ncol = 2)
+                           ncol = 1)
 p_gesamt <- grid.arrange(p_gesamt_1, p_gesamt_2)
 
-
-ggsave("graph/adjoining.eps", p_gesamt, width = 7, height = 7)
+ggsave("graph/adjoining.eps", p_gesamt, width = 7, height = 5)
 
 "graph/adjoining.eps"
 }
@@ -245,11 +156,88 @@ create_figure_epicurve <- function(df, demographiedaten, resultslist, externalin
     geom_segment(aes(x = date_q2_q3, y = -250, xend = date_q2_q3, yend = -50)) 
   
   
-  ggsave("graph/epicurve.eps", p, width = 9, height = 4.5)
   ggsave("graph/epicurve.png", p, width = 9, height = 4.5)
+  ggsave("graph/epicurve.eps", p, width = 9, height = 4.5)
   
   "graph/epicurve.eps"
 }
 
 
 
+create_measures_table <- function(resultslist) {
+  resultslist <- resultslist
+  measures_table <- resultslist$total_table %>% rename(myvar = total) %>% 
+    bind_rows(resultslist$agegroup_table %>% rename(myvar = AgeGroup)) %>% 
+    bind_rows(resultslist$qdef_table %>% rename(myvar = Q_Def)) %>% 
+    select(-q_sum_in_y, -i_sum_in_y) %>% 
+    mutate_all(.funs = as.character)
+  
+  
+  print(xtable(measures_table, type = "latex"), file = "graph/measures_table.tex", include.rownames=FALSE)
+  "graph/measures_table.tex"
+}
+
+
+create_figure_inclusionexclusion <- function(resultslist){
+  # Serves the scaling of the graph
+  commondivider <- 100000 / 7
+  
+  grViz("
+digraph boxes_and_circles {
+
+  graph [layout = dot,
+       rankdir = LR]
+
+subgraph {
+rank = same; 
+  Queried[label = 'Queried \n N = @@1-2',
+        shape = box,
+        fontname = Helvetica,
+        width = @@1-1]
+
+  Available_Dates[label = 'No missing dates \n N = @@2-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@2-1]
+
+  Correct_ID[label = 'Valid person ID \n N = @@3-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@3-1]
+
+  Inside_Studyperiod[label = 'Beginning in study period \n N = @@4-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@4-1]
+        
+  Typing_Correct[label = 'Dates without typing error \n N = @@5-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@5-1]
+        
+  Unique[label = 'Not duplicated \n N = @@6-3',
+        shape = box,
+        fontname = Helvetica,
+        width = @@6-1]
+}
+
+  Queried             ->  Available_Dates
+  Available_Dates     ->  Correct_ID
+  Correct_ID          ->  Inside_Studyperiod
+  Inside_Studyperiod  ->  Typing_Correct
+  Typing_Correct      ->  Unique
+
+ }
+
+[1]: c(resultslist$queried / commondivider, resultslist$queried)
+[2]: c( (resultslist$queried - resultslist$emptydates)  / commondivider,  resultslist$emptydates / commondivider,  (resultslist$queried - resultslist$emptydates),  resultslist$emptydates)
+[3]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid)  / commondivider, resultslist$wrongid / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid), resultslist$wrongid)
+[4]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange)  / commondivider, resultslist$outofrange / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange), resultslist$outofrange)
+[5]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror)  / commondivider, resultslist$typingerror / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror), resultslist$typingerror)
+[6]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror - resultslist$deleted_duplicates_quarantines - resultslist$deleted_duplicates_isolations)  / commondivider, (resultslist$deleted_duplicates_quarantines + resultslist$deleted_duplicates_isolations) / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror - resultslist$deleted_duplicates_quarantines - resultslist$deleted_duplicates_isolations), (resultslist$deleted_duplicates_quarantines + resultslist$deleted_duplicates_isolations))
+")  %>% 
+    export_svg() %>%
+    charToRaw %>% 
+    rsvg_eps("graph/inclusionexclusion.eps")
+  "graph/inclusionexclusion.eps"
+}

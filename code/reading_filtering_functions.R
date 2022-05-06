@@ -29,9 +29,9 @@ set_filter <- function(dataset, externalinput){
     mutate(wrongID = ifelse(AnonID == externalinput$wrong_id, "wrongID", wrongID)) %>% 
     mutate(wrongID = ifelse(AnonID == externalinput$wrong_id2, "wrongID", wrongID)) %>% 
     mutate(outofrange = "inrange") %>% 
-    mutate(outofrange = ifelse(AbsonderungVon < externalinput$StartDate | AbsonderungVon > (externalinput$EndDate + 14), "outofrange", outofrange)) %>%
-    mutate(outofrange = ifelse(AbsonderungBis < externalinput$StartDate | AbsonderungBis > (externalinput$EndDate + 14), "outofrange", outofrange)) %>%
-    mutate(outofrange = ifelse(Meldedatum < externalinput$StartDate | Meldedatum > (externalinput$EndDate + 14), "outofrange", outofrange)) %>% 
+    mutate(outofrange = ifelse(AbsonderungVon < externalinput$StartDate | AbsonderungVon > (externalinput$EndDate), "outofrange", outofrange)) %>%
+    # mutate(outofrange = ifelse(AbsonderungBis < externalinput$StartDate | AbsonderungBis > (externalinput$EndDate + 14), "outofrange", outofrange)) %>%
+    # mutate(outofrange = ifelse(Meldedatum < externalinput$StartDate | Meldedatum > (externalinput$EndDate + 14), "outofrange", outofrange)) %>% 
     mutate(typingerror = "notypingerror") %>% 
     mutate(abstandVonBis = AbsonderungBis - AbsonderungVon) %>% # create time periods used for filtering
     mutate(abstandMeldedatumVon = Meldedatum - AbsonderungVon) %>% # create time periods used for filtering
