@@ -5,19 +5,12 @@ author: "Jakob Schumacher, Lisa Kühne, Sophie Bruessermann, Benjamin Geisler, S
 output:
   html_document:
     df_print: paged
-    toc: FALSE
+    toc: TRUE
     toc_float: FALSE
     theme: lumen
     # code_folding: hide
     number_sections: true
     fig_caption: true
-  bookdown::html_document2:
-    df_print: paged
-  pdf_document:
-    keep_tex: yes
-params:
-  completerun: FALSE
-  dataversion: "2022-04-14"
 ---
 # About this repository
 This repository shows the code and holds the data for the publication "COVID-19 isolation and quarantine orders in Berlin-Reinickendorf (Germany): How many, how long and to whom?". 
