@@ -58,6 +58,7 @@ p1 <- df %>%
 
 p_gesamt <- grid.arrange(p1,p2)
 ggsave("graph/duration.eps", p_gesamt)
+ggsave("graph/duration.png", p_gesamt)
 "graph/duration.eps"
 }
 
@@ -111,6 +112,7 @@ p_gesamt_2 <- grid.arrange(p2,
 p_gesamt <- grid.arrange(p_gesamt_1, p_gesamt_2)
 
 ggsave("graph/adjoining.eps", p_gesamt, width = 7, height = 5)
+ggsave("graph/adjoining.png", p_gesamt, width = 7, height = 5)
 
 "graph/adjoining.eps"
 }
@@ -158,6 +160,7 @@ create_figure_epicurve <- function(df, demographiedaten, resultslist, externalin
       annotate(geom = "segment", x = date_q3 + xadjustment, y = qdefheight, xend = end, yend = qdefheight, arrow = arrow(length = unit(2, "mm")))
     
   ggsave("graph/epicurve.eps", p, width = 9, height = 4.5)
+  ggsave("graph/epicurve.png", p, width = 9, height = 4.5)
   
   "graph/epicurve.eps"
 }
@@ -182,7 +185,7 @@ create_figure_inclusionexclusion <- function(resultslist){
   # Serves the scaling of the graph
   commondivider <- 100000 / 7
   
-  grViz("
+  graphtext <- "
 digraph boxes_and_circles {
 
   graph [layout = dot,
@@ -235,9 +238,13 @@ rank = same;
 [4]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange)  / commondivider, resultslist$outofrange / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange), resultslist$outofrange)
 [5]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror)  / commondivider, resultslist$typingerror / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror), resultslist$typingerror)
 [6]: c( (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror - resultslist$deleted_duplicates_quarantines - resultslist$deleted_duplicates_isolations)  / commondivider, (resultslist$deleted_duplicates_quarantines + resultslist$deleted_duplicates_isolations) / commondivider, (resultslist$queried - resultslist$emptydates - resultslist$wrongid - resultslist$outofrange - resultslist$typingerror - resultslist$deleted_duplicates_quarantines - resultslist$deleted_duplicates_isolations), (resultslist$deleted_duplicates_quarantines + resultslist$deleted_duplicates_isolations))
-")  %>% 
+"
+
+grViz(graphtext)  %>% 
     export_svg() %>%
     charToRaw %>% 
     rsvg_eps("graph/inclusionexclusion.eps")
+
   "graph/inclusionexclusion.eps"
+
 }

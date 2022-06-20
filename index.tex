@@ -33,14 +33,6 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
-\hypersetup{
-  pdftitle={Covid-19 isolation and quarantine orders in a district of Berlin, Germany How many, how long, to whom and predictive factors},
-  pdfauthor={Jakob Schumacher, Lisa Kühne, Sophie Bruessermann, Benjamin Geisler, Sonja Jäckle},
-  hidelinks,
-  pdfcreator={LaTeX via pandoc}}
-\urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=1in]{geometry}
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -102,12 +94,20 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Covid-19 isolation and quarantine orders in a district of Berlin, Germany How many, how long, to whom and predictive factors},
+  pdfauthor={Jakob Schumacher, Lisa Kühne, Sophie Bruessermann, Benjamin Geisler, Sonja Jäckle},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
 
 \title{Covid-19 isolation and quarantine orders in a district of Berlin,
 Germany How many, how long, to whom and predictive factors}
 \author{Jakob Schumacher, Lisa Kühne, Sophie Bruessermann, Benjamin
 Geisler, Sonja Jäckle}
-\date{09. Mai 2022}
+\date{20. Juni 2022}
 
 \begin{document}
 \maketitle
@@ -129,6 +129,9 @@ Geisler, Sonja Jäckle}
 \CommentTok{\# Create correct figure caption}
 \NormalTok{knitr}\SpecialCharTok{::}\NormalTok{opts\_knit}\SpecialCharTok{$}\FunctionTok{set}\NormalTok{(}\AttributeTok{eval.after =} \StringTok{\textquotesingle{}fig.cap\textquotesingle{}}\NormalTok{)}
 
+\CommentTok{\# Linebreaks within code}
+\NormalTok{knitr}\SpecialCharTok{::}\NormalTok{opts\_chunk}\SpecialCharTok{$}\FunctionTok{set}\NormalTok{(}\AttributeTok{tidy =} \ConstantTok{TRUE}\NormalTok{)}
+
 \CommentTok{\# Adjust the big mark for large numbers}
 \NormalTok{knitr}\SpecialCharTok{::}\NormalTok{knit\_hooks}\SpecialCharTok{$}\FunctionTok{set}\NormalTok{(}\AttributeTok{inline =} \ControlFlowTok{function}\NormalTok{(x) \{ }\FunctionTok{prettyNum}\NormalTok{(x, }\AttributeTok{big.mark=}\StringTok{" "}\NormalTok{) \})}
 \end{Highlighting}
@@ -144,6 +147,286 @@ for used packages. This script runs with the package target. The
 important parts of the script lie in the functions in the code folder.
 You can check the file \_targets.R to see the different steps in their
 sequential order.
+
+\hypertarget{code}{%
+\section{Code}\label{code}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{create\_pairslist }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{maximumnumber =} \DecValTok{84}\NormalTok{)\{}
+  \CommentTok{\# This function creates a list of numbers which is needed for the other functions}
+\NormalTok{  overlapcheck\_pairs }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{highest =} \DecValTok{10}\NormalTok{)\{}
+\NormalTok{    mytibble }\OtherTok{\textless{}{-}} \FunctionTok{tibble}\NormalTok{(}\AttributeTok{value =} \DecValTok{1}\SpecialCharTok{:}\NormalTok{highest) }\SpecialCharTok{\%\textgreater{}\%} 
+      \FunctionTok{expand}\NormalTok{(value, }\AttributeTok{value1 =}\NormalTok{ value) }\SpecialCharTok{\%\textgreater{}\%} 
+      \FunctionTok{filter}\NormalTok{(value }\SpecialCharTok{\textless{}}\NormalTok{ value1) }
+\NormalTok{    mylist }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{nrow}\NormalTok{(mytibble), }\SpecialCharTok{\textasciitilde{}}\FunctionTok{c}\NormalTok{(mytibble}\SpecialCharTok{$}\NormalTok{value[.x], mytibble}\SpecialCharTok{$}\NormalTok{value1[.x]))}
+\NormalTok{    mylist}
+\NormalTok{  \}}
+  
+\NormalTok{  pairslist }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{maximumnumber, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{overlapcheck\_pairs}\NormalTok{(.x)) }\CommentTok{\# Legt die Pairsliste an}
+\NormalTok{  pairslist}
+\NormalTok{\}}
+
+
+\CommentTok{\#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%}
+\CommentTok{\# De duplication }
+\CommentTok{\#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%}
+\CommentTok{\# This function checks wheter two entries overlap}
+\NormalTok{overlapcheck }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data\_input, pair) \{}
+\NormalTok{  i }\OtherTok{\textless{}{-}}\NormalTok{ pair[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  j }\OtherTok{\textless{}{-}}\NormalTok{ pair[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  first }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[i], data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[i])}
+\NormalTok{  second }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[j], data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[j])}
+  \ControlFlowTok{if}\NormalTok{(first }\SpecialCharTok{\%overlaps\%}\NormalTok{ second) \{}
+\NormalTok{    data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[i] }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(}\FunctionTok{c}\NormalTok{(first, second))}
+\NormalTok{    data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[i] }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(}\FunctionTok{c}\NormalTok{(first, second))}
+\NormalTok{    data\_input }\OtherTok{\textless{}{-}}\NormalTok{ data\_input[}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(j),]}
+\NormalTok{  \}}
+\NormalTok{  data\_input}
+\NormalTok{\}}
+
+
+\CommentTok{\# This function uses the function overlapcheck on the table of one person and gives the result with only correct entries. }
+\NormalTok{overlapcheck\_concise }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data\_input, testsubject, }\AttributeTok{pair =}\NormalTok{ pairslist) \{}
+\NormalTok{  pairslist }\OtherTok{\textless{}{-}}\NormalTok{ pair}
+\NormalTok{  tdf }\OtherTok{\textless{}{-}}\NormalTok{ data\_input }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{==}\NormalTok{ testsubject) }
+\NormalTok{  mylist }\OtherTok{\textless{}{-}}\NormalTok{ pairslist[[}\FunctionTok{nrow}\NormalTok{(tdf)]]}
+\NormalTok{  allvalues }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(mylist, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{overlapcheck}\NormalTok{(tdf, .x))}
+\NormalTok{  table }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(allvalues) }
+\NormalTok{  table }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{count}\NormalTok{(rowid) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{==}\FunctionTok{length}\NormalTok{(mylist)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{n) }\SpecialCharTok{\%\textgreater{}\%}  
+    \FunctionTok{left\_join}\NormalTok{(table, }\AttributeTok{by =} \StringTok{"rowid"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{distinct}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{group\_by}\NormalTok{(rowid) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{AbsonderungVon =} \FunctionTok{min}\NormalTok{(AbsonderungVon)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{AbsonderungBis =} \FunctionTok{max}\NormalTok{(AbsonderungBis)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{distinct}\NormalTok{()}
+\NormalTok{\}}
+
+
+\NormalTok{de\_duplication }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df, }\AttributeTok{methodslist =}\NormalTok{ methodslist) \{}
+  \CommentTok{\# To save calculation time the complete dataset is split up. I am sure there is an easier way but this is a safe way.}
+\NormalTok{  kps }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(DatensatzKategorie }\SpecialCharTok{==} \StringTok{"Kontakt{-}COVID{-}19"}\NormalTok{)}
+\NormalTok{  faelle }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(DatensatzKategorie }\SpecialCharTok{==} \StringTok{"COVID{-}19"}\NormalTok{)}
+\NormalTok{  einzelne\_kps }\OtherTok{\textless{}{-}}\NormalTok{ kps }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(AnonID) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{==}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(AnonID)}
+\NormalTok{  doppelte\_kps }\OtherTok{\textless{}{-}}\NormalTok{ kps }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(AnonID) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{\textgreater{}}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(AnonID)}
+\NormalTok{  einzelne\_faelle }\OtherTok{\textless{}{-}}\NormalTok{ faelle }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(AnonID) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{==}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(AnonID)}
+\NormalTok{  doppelte\_faelle }\OtherTok{\textless{}{-}}\NormalTok{ faelle }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(AnonID) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{\textgreater{}}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(AnonID)}
+\NormalTok{  einzelne\_kps\_df }\OtherTok{\textless{}{-}}\NormalTok{ kps }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{\%in\%}\NormalTok{ einzelne\_kps)}
+\NormalTok{  doppelte\_kps\_df }\OtherTok{\textless{}{-}}\NormalTok{ kps }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{\%in\%}\NormalTok{ doppelte\_kps)}
+\NormalTok{  einzelne\_faelle\_df }\OtherTok{\textless{}{-}}\NormalTok{ faelle }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{\%in\%}\NormalTok{ einzelne\_faelle)}
+\NormalTok{  doppelte\_faelle\_df }\OtherTok{\textless{}{-}}\NormalTok{ faelle }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{\%in\%}\NormalTok{ doppelte\_faelle)}
+  
+  \CommentTok{\# Create pairslist}
+\NormalTok{  pairslist }\OtherTok{\textless{}{-}} \FunctionTok{create\_pairslist}\NormalTok{()}
+  
+  \CommentTok{\# These functions do the actual work of adjusting the overlapping periods}
+\NormalTok{  doppelte\_faelle\_df\_bereinigt }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}\FunctionTok{map}\NormalTok{(doppelte\_faelle, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{overlapcheck\_concise}\NormalTok{(}\AttributeTok{data\_input =}\NormalTok{ doppelte\_faelle\_df, }\AttributeTok{testsubject =}\NormalTok{ .x, }\AttributeTok{pair =}\NormalTok{ pairslist)))}
+\NormalTok{  doppelte\_kps\_df\_bereinigt }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}\FunctionTok{map}\NormalTok{(doppelte\_kps, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{overlapcheck\_concise}\NormalTok{(}\AttributeTok{data\_input =}\NormalTok{ doppelte\_kps\_df, }\AttributeTok{testsubject =}\NormalTok{ .x, }\AttributeTok{pair =}\NormalTok{ pairslist)))}
+  
+\NormalTok{  df }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(doppelte\_faelle\_df\_bereinigt, doppelte\_kps\_df\_bereinigt, einzelne\_faelle\_df, einzelne\_kps\_df) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ungroup}\NormalTok{()}
+
+\NormalTok{\}}
+
+\CommentTok{\#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%}
+\CommentTok{\# Adjust\_overlap}
+\CommentTok{\#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%}
+
+
+\CommentTok{\# The following variantes are possible}
+\CommentTok{\# 1 }
+\CommentTok{\# KP   |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Case |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textgreater{}=min(case)}
+\CommentTok{\# result should be:  delete(KP)}
+\CommentTok{\# 2}
+\CommentTok{\# KP      |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Case |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textgreater{}=min(case)}
+\CommentTok{\# result should be: delete(kp)}
+\CommentTok{\# 4}
+\CommentTok{\# KP    |{-}{-}|}
+\CommentTok{\#\textgreater{} Case |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textgreater{}=min(case)}
+\CommentTok{\# result should be:  delete(KP) }
+\CommentTok{\# 6}
+\CommentTok{\# KP   |{-}{-}|}
+\CommentTok{\#\textgreater{} Case |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textgreater{}=min(case)}
+\CommentTok{\# result should be: delete(KP)}
+\CommentTok{\# KP   |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Case |{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textgreater{}=min(case) }
+\CommentTok{\# result should be: delete(kp)}
+\CommentTok{\# 8}
+\CommentTok{\# KP    |{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Case |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textgreater{}=min(case)}
+\CommentTok{\# result should be: delete(kp)}
+\CommentTok{\# 3}
+\CommentTok{\# KP   |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Case    |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textless{}min(case)}
+\CommentTok{\# result should be:  min(KP) {-} min(Case)}
+\CommentTok{\# 5}
+\CommentTok{\# KP   |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Case  |{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textless{}min(case)}
+\CommentTok{\# result should be: min(KP) {-} min(case)}
+\CommentTok{\# 9}
+\CommentTok{\# KP   |{-}{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Case  |{-}{-}{-}|}
+\CommentTok{\#\textgreater{} Filter min(kp)\textless{}min(case)}
+\CommentTok{\# result should be: min(kp) {-} min(case)}
+
+
+
+\CommentTok{\# This function checks for overlap and adjusts the quarantine if needed}
+\NormalTok{adjustoverlapquarantine }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data\_input, pair) \{}
+\NormalTok{  i }\OtherTok{\textless{}{-}}\NormalTok{ pair[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  j }\OtherTok{\textless{}{-}}\NormalTok{ pair[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  first }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[i], data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[i])}
+\NormalTok{  second }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[j], data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[j])}
+\NormalTok{  firstsequence }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[i], data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[i], }\AttributeTok{by =} \DecValTok{1}\NormalTok{)}
+\NormalTok{  secondsequence }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[j], data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[j], }\AttributeTok{by =} \DecValTok{1}\NormalTok{)}
+  \ControlFlowTok{if}\NormalTok{(first }\SpecialCharTok{\%overlaps\%}\NormalTok{ second) \{}
+    \ControlFlowTok{if}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{DatensatzKategorie[i] }\SpecialCharTok{==} \StringTok{"COVID{-}19"} \SpecialCharTok{\&}\NormalTok{ data\_input}\SpecialCharTok{$}\NormalTok{DatensatzKategorie[j] }\SpecialCharTok{==} \StringTok{"Kontakt{-}COVID{-}19"}\NormalTok{) \{}
+      \ControlFlowTok{if}\NormalTok{(}\FunctionTok{min}\NormalTok{(secondsequence)}\SpecialCharTok{\textless{}}\FunctionTok{min}\NormalTok{(firstsequence))\{}
+\NormalTok{        data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[j] }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(secondsequence)}
+\NormalTok{        data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[j] }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(firstsequence)}
+\NormalTok{        data\_input}\SpecialCharTok{$}\NormalTok{overlapadjusted[j] }\OtherTok{\textless{}{-}} \StringTok{"adjusted"}
+\NormalTok{      \} }\ControlFlowTok{else}\NormalTok{ \{data\_input }\OtherTok{\textless{}{-}}\NormalTok{ data\_input[}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(j),]\}}
+      
+\NormalTok{    \}  }\ControlFlowTok{else} \ControlFlowTok{if}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{DatensatzKategorie[i] }\SpecialCharTok{==} \StringTok{"Kontakt{-}COVID{-}19"} \SpecialCharTok{\&}\NormalTok{ data\_input}\SpecialCharTok{$}\NormalTok{DatensatzKategorie[j] }\SpecialCharTok{==} \StringTok{"COVID{-}19"}\NormalTok{) \{}
+      \ControlFlowTok{if}\NormalTok{(}\FunctionTok{min}\NormalTok{(firstsequence)}\SpecialCharTok{\textless{}}\FunctionTok{min}\NormalTok{(secondsequence))\{}
+\NormalTok{        data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[i] }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(firstsequence)}
+\NormalTok{        data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[i] }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(secondsequence)  }
+\NormalTok{        data\_input}\SpecialCharTok{$}\NormalTok{overlapadjusted[i] }\OtherTok{\textless{}{-}} \StringTok{"adjusted"}
+\NormalTok{      \} }\ControlFlowTok{else}\NormalTok{ \{data\_input }\OtherTok{\textless{}{-}}\NormalTok{ data\_input[}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(i),]\}}
+\NormalTok{    \}}
+\NormalTok{  \}}
+\NormalTok{  data\_input}
+\NormalTok{\}}
+
+\CommentTok{\# This function applies the adjustoverlapquarantine to every testsubject}
+\NormalTok{adjustoverlapquarantine\_concise }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data\_input, testsubject, }\AttributeTok{pairslist =}\NormalTok{ pairslist) \{}
+\NormalTok{  tdf }\OtherTok{\textless{}{-}}\NormalTok{ data\_input }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{==}\NormalTok{ testsubject) }
+\NormalTok{  mylist }\OtherTok{\textless{}{-}}\NormalTok{ pairslist[[}\FunctionTok{nrow}\NormalTok{(tdf)]]}
+\NormalTok{  allvalues }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(mylist, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{adjustoverlapquarantine}\NormalTok{(tdf, .x))}
+\NormalTok{  table }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(allvalues) }
+\NormalTok{  changedrowids }\OtherTok{\textless{}{-}}\NormalTok{ table }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(overlapadjusted }\SpecialCharTok{==} \StringTok{"adjusted"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{distinct}\NormalTok{()}
+\NormalTok{  notchangedrowids }\OtherTok{\textless{}{-}}\NormalTok{ table }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{rowid }\SpecialCharTok{\%in\%}\NormalTok{ changedrowids}\SpecialCharTok{$}\NormalTok{rowid) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(rowid) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{distinct}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{left\_join}\NormalTok{(tdf, }\AttributeTok{by =} \StringTok{"rowid"}\NormalTok{)}
+\NormalTok{  data\_output }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(changedrowids, notchangedrowids)}
+\NormalTok{  data\_output }
+\NormalTok{\}}
+
+\NormalTok{adjust\_overlap }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df\_deduplicated)\{}
+\NormalTok{  df }\OtherTok{\textless{}{-}}\NormalTok{ df\_deduplicated}
+  \CommentTok{\# Create empty value}
+\NormalTok{  df}\SpecialCharTok{$}\NormalTok{overlapadjusted }\OtherTok{\textless{}{-}} \ConstantTok{NA}
+  \CommentTok{\# To save calculation time the complete dataset is split up. I am sure there is an easier way but this is a safe way.}
+\NormalTok{  einzelne\_anonIDs }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(AnonID) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{==}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(AnonID)}
+\NormalTok{  doppelte\_anonIDs }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(AnonID) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{\textgreater{}}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(AnonID)}
+\NormalTok{  einzelne\_anonIDs\_df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{\%in\%}\NormalTok{ einzelne\_anonIDs)}
+\NormalTok{  doppelte\_anonIDs\_df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{\%in\%}\NormalTok{ doppelte\_anonIDs)}
+  \CommentTok{\# Create pairslist}
+\NormalTok{  pairslist }\OtherTok{\textless{}{-}} \FunctionTok{create\_pairslist}\NormalTok{()}
+\NormalTok{  doppelte\_anonIDs\_df\_bereinigt }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}\FunctionTok{map}\NormalTok{(doppelte\_anonIDs, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{adjustoverlapquarantine\_concise}\NormalTok{(}\AttributeTok{data\_input =}\NormalTok{ doppelte\_anonIDs\_df, }
+                                                                                                    \AttributeTok{testsubject =}\NormalTok{ .x,  }
+                                                                                                    \AttributeTok{pairslist =}\NormalTok{ pairslist)))}
+  \CommentTok{\# Saving for the publication}
+\NormalTok{  df }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(doppelte\_anonIDs\_df\_bereinigt, einzelne\_anonIDs\_df) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ungroup}\NormalTok{()}
+  
+\NormalTok{  df}
+\NormalTok{\}}
+
+
+\CommentTok{\#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%}
+\CommentTok{\# Adjoining}
+\CommentTok{\#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%}
+
+\NormalTok{adjoincheck }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data\_input, pair) \{}
+\NormalTok{  i }\OtherTok{\textless{}{-}}\NormalTok{ pair[}\DecValTok{1}\NormalTok{] }\CommentTok{\# this is number one}
+\NormalTok{  j }\OtherTok{\textless{}{-}}\NormalTok{ pair[}\DecValTok{2}\NormalTok{] }\CommentTok{\# this is number two}
+  \CommentTok{\# what counts as adjoining }
+\NormalTok{  adjoiningwhentimedifference }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{7}\NormalTok{) }
+\NormalTok{  twoafterone }\OtherTok{\textless{}{-}}\NormalTok{ data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[j] }\SpecialCharTok{{-}}\NormalTok{ data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[i]  }\CommentTok{\# if one after two its positive}
+\NormalTok{  oneaftertwo }\OtherTok{\textless{}{-}}\NormalTok{ data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungVon[i] }\SpecialCharTok{{-}}\NormalTok{ data\_input}\SpecialCharTok{$}\NormalTok{AbsonderungBis[j] }\CommentTok{\# if two after one its positive}
+  \ControlFlowTok{if}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{DatensatzKategorie[i] }\SpecialCharTok{==} \StringTok{"COVID{-}19"} \SpecialCharTok{\&}\NormalTok{ data\_input}\SpecialCharTok{$}\NormalTok{DatensatzKategorie[j] }\SpecialCharTok{==} \StringTok{"Kontakt{-}COVID{-}19"}\NormalTok{) \{}
+    \ControlFlowTok{if}\NormalTok{(oneaftertwo }\SpecialCharTok{\%in\%}\NormalTok{ adjoiningwhentimedifference)\{}
+\NormalTok{      data\_input}\SpecialCharTok{$}\NormalTok{adjoiningQandI[i] }\OtherTok{\textless{}{-}}\NormalTok{ oneaftertwo}
+\NormalTok{      data\_input}\SpecialCharTok{$}\NormalTok{adjoiningQandI[j] }\OtherTok{\textless{}{-}}\NormalTok{ oneaftertwo}
+\NormalTok{    \} }
+\NormalTok{  \}  }\ControlFlowTok{else} \ControlFlowTok{if}\NormalTok{(data\_input}\SpecialCharTok{$}\NormalTok{DatensatzKategorie[i] }\SpecialCharTok{==} \StringTok{"Kontakt{-}COVID{-}19"} \SpecialCharTok{\&}\NormalTok{ data\_input}\SpecialCharTok{$}\NormalTok{DatensatzKategorie[j] }\SpecialCharTok{==} \StringTok{"COVID{-}19"}\NormalTok{) \{}
+    \ControlFlowTok{if}\NormalTok{(twoafterone }\SpecialCharTok{\%in\%}\NormalTok{ adjoiningwhentimedifference)\{}
+\NormalTok{      data\_input}\SpecialCharTok{$}\NormalTok{adjoiningQandI[i] }\OtherTok{\textless{}{-}}\NormalTok{ twoafterone}
+\NormalTok{      data\_input}\SpecialCharTok{$}\NormalTok{adjoiningQandI[j] }\OtherTok{\textless{}{-}}\NormalTok{ twoafterone}
+\NormalTok{    \}  }
+\NormalTok{  \}}
+\NormalTok{  data\_input}
+\NormalTok{\}}
+
+\NormalTok{adjoincheck\_concise }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data\_input, testsubject, }\AttributeTok{pair =}\NormalTok{ pairslist) \{}
+  
+  \CommentTok{\# Get pairslist}
+\NormalTok{  pairslist }\OtherTok{\textless{}{-}}\NormalTok{ pair}
+  
+\NormalTok{  tdf }\OtherTok{\textless{}{-}}\NormalTok{ data\_input }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{==}\NormalTok{ testsubject) }
+\NormalTok{  mylist }\OtherTok{\textless{}{-}}\NormalTok{ pairslist[[}\FunctionTok{nrow}\NormalTok{(tdf)]]}
+\NormalTok{  allvalues }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(mylist, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{adjoincheck}\NormalTok{(tdf, .x))}
+\NormalTok{  table }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(allvalues) }
+\NormalTok{  changedrowids }\OtherTok{\textless{}{-}}\NormalTok{ table }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(adjoiningQandI)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{distinct}\NormalTok{()}
+\NormalTok{  notchangedrowids }\OtherTok{\textless{}{-}}\NormalTok{ table }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{rowid }\SpecialCharTok{\%in\%}\NormalTok{ changedrowids}\SpecialCharTok{$}\NormalTok{rowid) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(rowid) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{distinct}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{left\_join}\NormalTok{(tdf, }\AttributeTok{by =} \StringTok{"rowid"}\NormalTok{)}
+\NormalTok{  data\_output }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(changedrowids, notchangedrowids)}
+\NormalTok{  data\_output}
+\NormalTok{\}}
+
+\NormalTok{find\_adjoin }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df\_overlapped) \{}
+  
+  \CommentTok{\# Get the dataframe}
+\NormalTok{  df }\OtherTok{\textless{}{-}}\NormalTok{ df\_overlapped}
+  
+  \CommentTok{\# Set empty value}
+\NormalTok{  df}\SpecialCharTok{$}\NormalTok{adjoiningQandI }\OtherTok{\textless{}{-}} \ConstantTok{NA}
+  
+  \CommentTok{\# Split up the df to save computing time}
+\NormalTok{  einzelne\_anonIDs }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(AnonID) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{==}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(AnonID)}
+\NormalTok{  doppelte\_anonIDs }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(AnonID) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(n}\SpecialCharTok{\textgreater{}}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(AnonID)}
+\NormalTok{  einzelne\_anonIDs\_df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{\%in\%}\NormalTok{ einzelne\_anonIDs)}
+\NormalTok{  doppelte\_anonIDs\_df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(AnonID }\SpecialCharTok{\%in\%}\NormalTok{ doppelte\_anonIDs)}
+  
+  \CommentTok{\# Create pairslist}
+\NormalTok{  pairslist }\OtherTok{\textless{}{-}} \FunctionTok{create\_pairslist}\NormalTok{()}
+  
+  \CommentTok{\# Find the adjoining quarantines and isolations}
+\NormalTok{  doppelte\_anonIDs\_df\_bereinigt }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}\FunctionTok{map}\NormalTok{(doppelte\_anonIDs, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{adjoincheck\_concise}\NormalTok{(}\AttributeTok{data\_input =}\NormalTok{ doppelte\_anonIDs\_df, }
+                                                                                        \AttributeTok{testsubject =}\NormalTok{ .x,}
+                                                                                        \AttributeTok{pair =}\NormalTok{ pairslist)))}
+  
+\NormalTok{  df }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(doppelte\_anonIDs\_df\_bereinigt, einzelne\_anonIDs\_df)}
+\NormalTok{\}}
+
+
+\CommentTok{\# Final cleaning {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+
+
+\NormalTok{final\_cleaning }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df\_adjoined, externalinput)\{}
+\NormalTok{  df\_adjoined }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{left\_join}\NormalTok{(externalinput}\SpecialCharTok{$}\NormalTok{zeiten, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"AbsonderungVon"} \OtherTok{=} \StringTok{"dates"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Meldemonat =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{year}\NormalTok{(AbsonderungVon), }\FunctionTok{format.Date}\NormalTok{(AbsonderungVon, }\StringTok{"\%m"}\NormalTok{), }\AttributeTok{sep =} \StringTok{"\_"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Meldewoche =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{year}\NormalTok{(AbsonderungVon), }\FunctionTok{format.Date}\NormalTok{(AbsonderungVon, }\StringTok{"\%W"}\NormalTok{), }\AttributeTok{sep =} \StringTok{"\_"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{dauer =} \FunctionTok{as.numeric}\NormalTok{(AbsonderungBis }\SpecialCharTok{{-}}\NormalTok{ AbsonderungVon)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{Q\_Def\_value, }\SpecialCharTok{{-}}\NormalTok{Q\_Def\_url, }\SpecialCharTok{{-}}\NormalTok{I\_Duration\_value, }\SpecialCharTok{{-}}\NormalTok{I\_Duration\_url, }\SpecialCharTok{{-}}\NormalTok{Q\_Duration\_value, }\SpecialCharTok{{-}}\NormalTok{Q\_Duration\_url) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{result =} \ConstantTok{NA}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{result =} \FunctionTok{ifelse}\NormalTok{(adjoiningQandI }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\StringTok{"I\_correct\_after\_Q"}\NormalTok{, result)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{result =} \FunctionTok{ifelse}\NormalTok{(adjoiningQandI }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{, }\StringTok{"I\_too\_long\_after\_Q"}\NormalTok{, result)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{result =} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(adjoiningQandI), }\StringTok{"No\_I\_after\_Q"}\NormalTok{, result)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{result =} \FunctionTok{ifelse}\NormalTok{(AbsonderungVon }\SpecialCharTok{\textless{}}\NormalTok{ externalinput}\SpecialCharTok{$}\NormalTok{StartDateKP }\SpecialCharTok{|}\NormalTok{ AbsonderungVon }\SpecialCharTok{\textgreater{}}\NormalTok{ externalinput}\SpecialCharTok{$}\NormalTok{EndDateKP, }\StringTok{"outside\_of\_kp\_time"}\NormalTok{, result)) }
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
@@ -524,9 +807,34 @@ measures}\label{results-of-statistical-measures}}
 ## 3 18 to 64  I_too_long_after_Q   210 16678        1.3
 ## 4 65 to 110 I_too_long_after_Q    34  1980        1.7
 ## 
+## $before_after_q_duration_no_4
+## # A tibble: 4 x 4
+## # Groups:   before_after_q_duration_no_4 [2]
+##   before_after_q_duration_no_4 result                 n      p
+##   <chr>                        <chr>              <int>  <dbl>
+## 1 no1_3                        I_correct_after_Q   5673 0.108 
+## 2 no1_3                        I_too_long_after_Q   543 0.0103
+## 3 no4                          I_correct_after_Q   1295 0.0755
+## 4 no4                          I_too_long_after_Q   527 0.0307
+## 
 ## $q_timeliness_median
 ##   0%  25%  50%  75% 100% 
 ##    0    1    4    6   12 
+## 
+## $q_timeliness_mean
+## # A tibble: 2 x 2
+##   Q_Duration    mean
+##   <chr>        <dbl>
+## 1 Q_Duration_1  4.32
+## 2 Q_Duration_3  4.01
+## 
+## $q_timeliness_median_D1
+##   0%  25%  50%  75% 100% 
+##    0    1    4    7   12 
+## 
+## $q_timeliness_median_D3
+##   0%  25%  50%  75% 100% 
+##    0    2    3    6   12 
 ## 
 ## $agegroup_table
 ## # A tibble: 4 x 16

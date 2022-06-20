@@ -1,35 +1,29 @@
 ---
-title: Covid-19 isolation and quarantine orders in a district of Berlin, Germany How many, how long, to whom and predictive factors
+title: "COVID-19 isolation and quarantine orders in Berlin-Reinickendorf (Germany): How many, how long and to whom?"
 date: "`r format(Sys.time(), '%d. %B %Y')`"
-author: Jakob Schumacher, Lisa Kühne, Sophie Bruessermann, Benjamin Geisler, Sonja Jäckle
+author: "Jakob Schumacher, Lisa Kühne, Sophie Bruessermann, Benjamin Geisler, Sonja Jäckle"
 output:
-  pdf_document:
-    keep_tex: yes
-  bookdown::html_document2:
-    df_print: paged
   html_document:
     df_print: paged
     toc: FALSE
     toc_float: FALSE
     theme: lumen
-    code_folding: hide
+    # code_folding: hide
     number_sections: true
     fig_caption: true
+  bookdown::html_document2:
+    df_print: paged
+  pdf_document:
+    keep_tex: yes
 params:
   completerun: FALSE
   dataversion: "2022-04-14"
 ---
-
-```{r}
-# ![]("https://www.horizont.net/news/media/32/Das-neue-Berlin-Logo-315209.jpeg"){width=30%}
-# ![]("https://www.ultrasoundsymposium.org/wp-content/uploads/2017/08/fhg-1.gif"){width=30%}
-# ![](https://www.lsc-digital-public-health.de/images/partners/leibniz-institut-bips.png){width=30%}
+# About this repository
+This repository shows the code and holds the data for the publication "COVID-19 isolation and quarantine orders in Berlin-Reinickendorf (Germany): How many, how long and to whom?". 
 
 
-###############################################
-# Setting options for knitr, ggplot, fonts 
-##############################################
-
+```{r Setting options for knitr ggplot , echo=FALSE}
 # Disabeling scientific notation
 options(scipen = 999)
 
@@ -38,43 +32,41 @@ knitr::opts_knit$set(eval.after = 'fig.cap')
 
 # Adjust the big mark for large numbers
 knitr::knit_hooks$set(inline = function(x) { prettyNum(x, big.mark=" ") })
-
-
 ```
 
+# Understanding the R-Code
+The following R-Code calculates all the necessary numbers and figures for the publication. All necessary files to reproduce are available. The analysis is done in R. This project uses Renv. See the file .Rprofile for used packages. This script runs with the package target. The important parts of the script lie in the functions in the code folder. You can check the file _targets.R to see the different steps in their sequential order. Use tar_make() to run the analysis.
 
-# About this Repository
-The following R-Script calculates all the necessary numbers and figures for a publication. All necessary files to reproduce are available. The analysis is done in R. This project uses Renv. See the file .Rprofile for used packages. This script runs with the package target. The important parts of the script lie in the functions in the code folder. You can check the file _targets.R to see the different steps in their sequential order.
+
+# Code
+## Reading data and filtering
+```{r, code = readLines('code/reading_filtering_functions.R')}
+```
+
+## External input
+```{r, code = readLines('code/external_input.R')}
+```
+
+## Cleaning and tidying data
+```{r, code = readLines('code/transforming_functions.R')}
+```
+
+## Producing the results
+```{r, code = readLines('code/calculating_results.R')}
+```
+
+## Creating graphs and tables
+```{r, code = readLines('code/graphs_tables.R')}
+```
+
 
 # Results
-```{r Results}
-df <- tar_read(df)
-demographiedaten <- tar_read(demographiedaten)
-zeiten <- tar_read(externalinput)$zeiten
-externalinput <- tar_read(externalinput)
-resultslist <- tar_read(results)
-```
-
-We extracted `r resultslist$queried` datasets from SurvNet. `r resultslist$definitionfullfilled` entries fullfilled the definition (`r resultslist$emptydates` had missing dates, `r resultslist$wrongid` entries had an IDs that did not lead to an existing person and `r resultslist$outofrange` separation orders did not begin in the study period). We removed `r resultslist$typingerror` entries because they had a presumed typing error in one of the dates. We also removed `r resultslist$deleted_duplicates_isolations ` duplicated isolations and `r resultslist$deleted_duplicates_quarantines` duplicated quarantines. For `r resultslist$adjustedQuarantines` quarantines we reduced the length by the overlap with a following isolation period. In the demographic data we found `r resultslist$N` inhabitants registered in Berlin Reinickendorf.
-
-## Results of statistical measures
-* *Analysis of quantity of isolation and quarantines:* The local public health agency ordered $n_{\text{i}}$ = `r resultslist$I_n` isolations and $n_{\text{q}}$ =  `r resultslist$Q_n` quarantines ($n_{\text{i-p100}}$ = `r resultslist$I_p` isolations and $n_{\text{q-p100}}$ = `r resultslist$Q_p ` quarantines per 100 inhabitants). The number of quarantines and isolations by age group and recommendation period can bee seen in \@ref(tab:agegrouptable)). The number of quarantines per 100 inhabitants $n_{\text{q-p100}}$ was `r resultslist$agegroup_table$q_p[1]` for the kindergarten-hildren and `r resultslist$agegroup_table$q_p[2]` in the school children compared to `r resultslist$agegroup_table$q_p[3]` in adults or `r resultslist$agegroup_table$q_p[4]` in the elderly.
-`r resultslist$QundIproPerson_1_order_n` (`r resultslist$QundIproPerson_1_order_p` %) of persons had one spearation order (quarantine or isolation), `r resultslist$QundIproPerson_2_order_n` (`r resultslist$QundIproPerson_2_order_p` %) had two spearation orders, `r resultslist$QundIproPerson_3_order_n` (`r resultslist$QundIproPerson_3_order_p` %) had three spearation orders, `r resultslist$QundIproPerson_4_order_n` (`r resultslist$QundIproPerson_4_order_p` %) had four spearation orders and `r resultslist$QundIproPerson_5_order_n` had five spearation orders - the maximum.   
-
-* *Analysis of the duration of isolation quarantines:* The median duration for isolations was $\tilde d_{\text{i}}$ = `r resultslist$MedianeDauerI["50%"] ` days (interquartile range `r resultslist$MedianeDauerI["25%"]` - `r resultslist$MedianeDauerI["75%"] `). The duration did change in between different periods of recommendations. The median of the duration during the recommendation periods were: `r resultslist$MedianeDauerI_Rec_1` days for the period No. 1, `r resultslist$MedianeDauerI_Rec_2` days for the period No. 2 and `r resultslist$MedianeDauerI_Rec_3` days for the period No. 3. The overall median duration for quarantines was $\tilde d_{\text{q}}$ = `r resultslist$MedianeDauerQ["50%"] ` days (interquartile range `r resultslist$MedianeDauerQ["25%"]` - `r resultslist$MedianeDauerQ["75%"] `). The median duration did differ between periods of different recommendations and age groups. The median of the duration during the recommendation periods were: `r resultslist$MedianeDauerQ_Rec_1` days for the period No. 1, `r resultslist$MedianeDauerQ_Rec_2` days for the period No. 2, `r resultslist$MedianeDauerQ_Rec_3` days for the period No. 3 and `r resultslist$MedianeDauerQ_Rec_4` days for the period No. 4. See Fig \@ref(fig:duration). All together the public health agency ordered `r resultslist$i_d_in_y` years of isolations and `r resultslist$q_d_in_y` years of quarantine or `r resultslist$qi_d_in_y` years in total. 
-
-
-* *Analysis of the ratio of contact persons per case:* The overal ratio of contact persons was $r_{\text{qi}}$ = `r resultslist$K_F_Verhaeltnis`. In the period of the contact person defintion no. 1 the ratio was `r resultslist$K_F_Verhaeltnis_QDef_1 ` in the period no. 2 the ratio was `r resultslist$K_F_Verhaeltnis_QDef_2` and in the period no. 3 the ratio was: `r resultslist$K_F_Verhaeltnis_QDef_3`. 
-
-
-* *Analysis of isolations following quarantines:* In the time period from the start of the recording of quarantines `r  resultslist$I_after_Q$I_correct_after_Q` of `r resultslist$I_n_kptime` isolations had a directly preceeding quarantine and `r resultslist$I_after_Q$I_too_long_after_Q` a preceeding quarantine in the 1 to 7 days before the isolations. `r resultslist$Q_with_I_after$I_correct_after_Q` of `r resultslist$Q_n_kptime` quarantines in that time period had a directly following isolation (contained case) and `r resultslist$Q_with_I_after$I_too_long_after_Q` a isolation following in the days 1 to 7 after the quarantine (non-contained case). This did differ between different periods and recommendations see Fig \@ref(fig:adjoining-quarantines-and-isolation). 
-
-* *Reduction of the reproductive number:* Assuming a total prevention of transmission by the quarantine order we calculated a reduction of `r resultslist$r` of the reproductive Number by quarantine orders.
-
-* *Analysis of timeliness:* Our approximation of the median time period between the last contact and the beginning of the quarantine order was $\tilde d_{\text{delay}}$ = `r resultslist$q_timeliness_median["50%"]` (interquartile range `r resultslist$q_timeliness_median["25%"]` - `r resultslist$q_timeliness_median["75%"] `) during the time periods when 14 days were recommended as a quarantine duration. 
-
-# All results
 ```{r}
-resultslist
+tar_read(results)
 ```
 
+
+# Graphs
+![Epicurve](graph/epicurve.png)
+![Epicurve](graph/adjoining.png)
+![Epicurve](graph/duration.png)

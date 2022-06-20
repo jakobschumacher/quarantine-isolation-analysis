@@ -9,11 +9,11 @@ colourisolation|object|11f748be86aa6552|||||||||||||||
 colourquarantine|object|1c8a96dfd085f8ab|||||||||||||||
 colourquarantine_light|object|da77469283eff2de|||||||||||||||
 contactmonitor|function|8fe364b48dfbc45e|||||||||||||||
-create_figure_adjoining|function|b9481737127212fa|||||||||||||||
-create_figure_duration|function|bdeeb103d423b73d|||||||||||||||
-create_figure_epicurve|function|af2541aafcae36eb|||||||||||||||
+create_figure_adjoining|function|8f8212f13ad5da41|||||||||||||||
+create_figure_duration|function|57b4e0e6e5adaa16|||||||||||||||
+create_figure_epicurve|function|0594ab9e71b434b0|||||||||||||||
 create_figure_incidence|function|1f21b37cbfc11466|||||||||||||||
-create_figure_inclusionexclusion|function|e93a56c9e530f8ab|||||||||||||||
+create_figure_inclusionexclusion|function|be74f4a1ebb06350|||||||||||||||
 create_measures_table|function|6a961c72ab7c87a3|||||||||||||||
 create_pairslist|function|1ae59674df99ecf1|||||||||||||||
 data|stem|7b6384cea6f1e07c|d6b4fc70aab8c2a4|d57ad0cbc32d9679|1588979285||t19096.4915551686s|ff9fa687aed85f9a|15356|rds|local|vector|||0.073||
@@ -52,11 +52,11 @@ mypalette|object|f6a517cf333a539a|||||||||||||||
 overlapcheck|function|1c5333829a50aafb|||||||||||||||
 overlapcheck_concise|function|e06b2048185ce4d6|||||||||||||||
 overlapcheck_pairs|function|1b362d5090d3244a|||||||||||||||
-plot_adjoining|stem|29c9d707c2de5f1a|2f1512dc3cbe27a8|949c7422f4a2a7c7|782272761|graph/adjoining.eps|t19151.6103004758s|40bafb4a48cfe0a1|17923|file|local|vector|||0.782||
-plot_duration|stem|823a27cc354c917f|489a7df3157f98a2|70e25cda051acd0e|-441991233|graph/duration.eps|t19151.6103093187s|f2b263b98298320c|25526|file|local|vector|||0.755||
-plot_epicurve|stem|67f77ef8a2dcced1|4d1038be5f361eeb|e8bb831313aa0330|-1010788634|graph/epicurve.eps|t19151.6267362865s|ae0d61cb2126692c|12849|file|local|vector|||0.404||
+plot_adjoining|stem|29c9d707c2de5f1a|2f1512dc3cbe27a8|3ce05c511182ee92|782272761|graph/adjoining.eps|t19163.2981492166s|40bafb4a48cfe0a1|17923|file|local|vector|||1.01||
+plot_duration|stem|823a27cc354c917f|489a7df3157f98a2|85e2c0d617ce23c7|-441991233|graph/duration.eps|t19163.2981610685s|f2b263b98298320c|25526|file|local|vector|||1.002||
+plot_epicurve|stem|67f77ef8a2dcced1|4d1038be5f361eeb|0d0b34f1084356d7|-1010788634|graph/epicurve.eps|t19163.2981672259s|ae0d61cb2126692c|12849|file|local|vector|||0.609||
 plot_incidence|stem|9d07542bd49a557d|77d46d12d8e4d3f4|f64a5a3181648b51|-679664542|graph/incidence.eps|t19116.3017527707s||9412|file|local|vector|||0.002||konnte Funktion create_figure_incidence nicht finden
-plot_inclusionexclusion|stem|210c85714ce4a065|a8bc5edbd096066f|7f70d0cf08816910|101797455|graph/inclusionexclusion.eps|t19142.5661068744s|b80b5fb1deea0819|14069|file|local|vector|||0.31||
+plot_inclusionexclusion|stem|465148ca397f7570|a8bc5edbd096066f|d9dd9f3847791f10|101797455|graph/inclusionexclusion.eps|t19163.3058493079s|b80b5fb1deea0819|14069|file|local|vector|||0.314||
 plot_measures_table|stem|a2feafc6c63038bc|3c16057f01688ff5|1e2684e563c0df9d|-61636611|graph/measures_table.tex|t19142.566103217s|8873a71d104e9f04|1139|file|local|vector|||0.015||
 read_demographiedata|function|6ce8849de01afbec|||||||||||||||
 read_externalinput|function|db7f3a5847896498|||||||||||||||
