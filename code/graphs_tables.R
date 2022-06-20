@@ -10,45 +10,45 @@ ester_theme <- function() {
   )
 }
 
-
 # Set colours -------------------------------------------------------------
 
 # https://coolors.co/00759c
 
 # Create colour palette for ggplot
 colourquarantine = "#00759c"
+colourquarantine_light = "#1da4d1"
 colourisolation = "#9E2800" 
-triplecolours <- c("#009E5C", "#00759C", "#9E2800")
-
-  
 
 
 create_figure_duration <- function(df, demographiedaten){
   colourquarantine = "#00759c"
   colourisolation = "#9E2800" 
 
-  p1 <- df %>%
+  p2 <- df %>%
   filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
   filter(!is.na(Q_Duration)) %>% 
+  mutate(Q_Duration = recode_factor(Q_Duration, "Q_Duration_1" = "Q[1]", "Q_Duration_2" = "Q[2]", "Q_Duration_3" = "Q[3]", "Q_Duration_4" = "Q[4]", .ordered = TRUE)) %>%
   group_by(AgeGroup) %>% 
   ggplot(aes(factor(AgeGroup), as.numeric(dauer))) +
   ester_theme() +
   geom_boxplot(outlier.shape = NA, fill = colourquarantine) +
-  facet_grid(~Q_Duration) +
+  facet_grid(~Q_Duration, labeller=label_parsed) +
   coord_cartesian(ylim = c(0, 23)) +
   ylab("duration in days") +
   xlab("") +
   ggtitle("Duration of quarantine in Reinickendorf Berlin")  +
   theme(axis.text.x = element_text(angle=45, vjust = 1, hjust=1))
-p2 <- df %>% 
+  
+p1 <- df %>% 
   filter(DatensatzKategorie == "COVID-19") %>% 
   filter(!is.na(Q_Duration)) %>% 
+  mutate(I_Duration = recode_factor(I_Duration, "I_Duration_1" = "I[1]", "I_Duration_2" = "I[2]", "I_Duration_3" = "I[3]", "I_Duration_4" = "I[4]", .ordered = TRUE)) %>%
   group_by(AgeGroup) %>% 
   ggplot(aes(factor(AgeGroup), as.numeric(dauer))) +
   ester_theme() +
   geom_boxplot(outlier.shape = NA) +
   # geom_violin(scale = "count") +
-  facet_grid(~I_Duration) +
+  facet_grid(~I_Duration, labeller=label_parsed) +
   coord_cartesian(ylim = c(0,28)) +
   geom_boxplot(outlier.shape = NA, fill = colourisolation) +
   ylab("duration in days") +
@@ -65,12 +65,10 @@ ggsave("graph/duration.eps", p_gesamt)
 
 create_figure_adjoining <- function(df) {
 
-  triplecolours <- c("#009E5C", "#00759C", "#9E2800")
-  
-  p1 <-   df %>% 
+  p1 <- df %>% 
   filter(DatensatzKategorie == "COVID-19") %>% 
   filter(result != "outside_of_kp_time") %>%
-  mutate(Q_Def = recode_factor(Q_Def, "Q_Def_1" = "Def_1", "Q_Def_2" = "Def_2", "Q_Def_3" = "Def_3", .ordered = TRUE)) %>%
+  mutate(Q_Def = recode_factor(Q_Def, "Q_Def_1" = "C[1]", "Q_Def_2" = "C[2]", "Q_Def_3" = "C[3]", .ordered = TRUE)) %>%
   mutate(result = recode_factor(result, "I_too_long_after_Q" = "Isolation missed", "I_correct_after_Q" = "Isolation starts after quarantine", .ordered = TRUE)) %>% 
   group_by(Q_Def, AgeGroup, result) %>%
   summarise(count = n(), .groups = "drop") %>%
@@ -78,8 +76,8 @@ create_figure_adjoining <- function(df) {
   mutate(p = round(100*count/sum(count))) %>%
   filter(result != "No_I_after_Q") %>%
   ggplot(aes(x = AgeGroup, y = p)) +
-  geom_col(fill = triplecolours[2]) +
-  facet_wrap(~Q_Def) +
+  geom_col(fill = colourisolation) +
+  facet_wrap(~Q_Def, labeller=label_parsed) +
   ester_theme() +
   ylab("%") +
   xlab("Age group") +
@@ -89,7 +87,7 @@ create_figure_adjoining <- function(df) {
 p2 <- df %>% 
   filter(DatensatzKategorie == "Kontakt-COVID-19") %>% 
   filter(result != "outside_of_kp_time") %>%
-  mutate(Q_Def = recode_factor(Q_Def, "Q_Def_1" = "Def_1", "Q_Def_2" = "Def_2", "Q_Def_3" = "Def_3", .ordered = TRUE)) %>%
+  mutate(Q_Def = recode_factor(Q_Def, "Q_Def_1" = "C[1]", "Q_Def_2" = "C[2]", "Q_Def_3" = "C[3]", .ordered = TRUE)) %>%
   mutate(result = recode_factor(result, "I_too_long_after_Q" = "Isolation 1 to 7 days after quarantine", "I_correct_after_Q" = "Isolation directly after quarantine", .ordered = TRUE)) %>% 
   group_by(Q_Def, AgeGroup, result) %>%
   summarise(count = n(), .groups = "drop") %>%
@@ -98,11 +96,11 @@ p2 <- df %>%
   filter(result != "No_I_after_Q") %>%
   ggplot(aes(x = AgeGroup, y = p, fill = result)) +
   geom_col() +
-  facet_wrap(~Q_Def) +
+  facet_wrap(~Q_Def, labeller=label_parsed) +
   ester_theme() +
   ylab("%") +
   xlab("Age group") +
-  scale_fill_manual('', values = c(triplecolours[3], triplecolours[1])) 
+  scale_fill_manual('', values = c(colourquarantine_light, colourquarantine)) 
 
 p_gesamt_1 <- grid.arrange(p1,
                            top = grid::textGrob("Percentage of isolations that were preceded by a quarantine period", gp = grid::gpar(fontsize=14)),
@@ -130,9 +128,11 @@ create_figure_epicurve <- function(df, demographiedaten, resultslist, externalin
   date_q2 <- date_q1_q2 + (as.numeric(date_q2_q3 - date_q1_q2) / 2) 
   date_q3 <- date_q2_q3 + (as.numeric(end - date_q2_q3) / 2) 
   qdefheight = -150
-  xadjustment = 30
+  xadjustment = 15
+  xadjustmentarrows = 2
   
-  p <- df %>% 
+  p <- 
+    df %>% 
     mutate(meldezeit = floor_date(AbsonderungVon, "week")) %>% 
     ggplot(aes(meldezeit, fill = DatensatzKategorie)) + 
     ester_theme() +
@@ -144,19 +144,19 @@ create_figure_epicurve <- function(df, demographiedaten, resultslist, externalin
     theme(legend.position = "none") + 
     # Add contact person defintion period
     annotate(geom = "text", x = dmy("15052020"), y = 950, label = "Start recording \n of quarantines", hjust = "left") +  
-    annotate(geom = "curve", x = dmy("05062020"), y = 700, xend = dmy("25052020"), yend = 100,   curvature = .2, arrow = arrow(length = unit(2, "mm"))) +
-    annotate(geom = "text", x = date_q1, y = qdefheight, label = "Q_1", hjust = "center") +
-    geom_segment(aes(x = date_q1 - xadjustment, y = qdefheight, xend = start, yend = qdefheight), arrow = arrow(length = unit(2, "mm"))) +
-    geom_segment(aes(x = date_q1 + xadjustment, y = qdefheight, xend = date_q1_q2 -10, yend = qdefheight), arrow = arrow(length = unit(2, "mm"))) +
-    annotate(geom = "text", x = date_q2, y = qdefheight, label = "Q_2", hjust = "center") +
-    annotate(geom = "text", x = date_q3, y = qdefheight, label = "Q_3", hjust = "center") +
-    geom_segment(aes(x = date_q3 - xadjustment, y = qdefheight, xend = date_q2_q3 + 10, yend = qdefheight), arrow = arrow(length = unit(2, "mm"))) +
-    geom_segment(aes(x = date_q3 + xadjustment, y = qdefheight, xend = end, yend = qdefheight), arrow = arrow(length = unit(2, "mm"))) +
-    geom_segment(aes(x = date_q1_q2, y = -250, xend = date_q1_q2, yend = -50)) +
-    geom_segment(aes(x = date_q2_q3, y = -250, xend = date_q2_q3, yend = -50)) 
-  
-  
-  ggsave("graph/epicurve.png", p, width = 9, height = 4.5)
+    annotate(geom = "curve", x = dmy("05062020"), y = 700, xend = dmy("25052020"), yend = 100,   curvature = .2, arrow = arrow(length = unit(2, "mm")))  +
+    annotate(geom = "text", x = date_q1, y = qdefheight, label = "C[1]", hjust = "center", parse = TRUE) +
+    annotate(geom = "text", x = date_q2, y = qdefheight, label = "C[2]", hjust = "center", parse = TRUE) +
+    annotate(geom = "text", x = date_q3, y = qdefheight, label = "C[3]", hjust = "center", parse = TRUE) +
+    annotate(geom = "segment", x = date_q1 - xadjustment, y = qdefheight, xend = start, yend = qdefheight, arrow = arrow(length = unit(2, "mm"))) +
+    annotate(geom = "segment", x = date_q1 + xadjustment, y = qdefheight, xend = date_q1_q2 - xadjustmentarrows, yend = qdefheight, arrow = arrow(length = unit(2, "mm"))) +
+      # C2
+     annotate(geom = "segment", x = date_q2 - xadjustment, y = qdefheight, xend = date_q1_q2 + xadjustmentarrows, yend = qdefheight, arrow = arrow(length = unit(2, "mm"))) +
+     annotate(geom = "segment", x = date_q2 + xadjustment, y = qdefheight, xend = date_q2_q3 - xadjustmentarrows, yend = qdefheight, arrow = arrow(length = unit(2, "mm"))) +
+      # C3
+      annotate(geom = "segment", x = date_q3 - xadjustment, y = qdefheight, xend = date_q2_q3 + xadjustmentarrows, yend = qdefheight, arrow = arrow(length = unit(2, "mm"))) +
+      annotate(geom = "segment", x = date_q3 + xadjustment, y = qdefheight, xend = end, yend = qdefheight, arrow = arrow(length = unit(2, "mm")))
+    
   ggsave("graph/epicurve.eps", p, width = 9, height = 4.5)
   
   "graph/epicurve.eps"

@@ -304,6 +304,15 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
     filter(result == "I_too_long_after_Q") %>% 
     left_join(resultslist$Q_n_by_AgeGroup %>% rename(N=n), by="AgeGroup") %>% 
     mutate(percentage = round(100*n/N,1))
+
+# Duration 4 vs 1-3 --------------------------------------------------------
+  resultslist$before_after_q_duration_no_4 <- df %>% 
+    mutate(before_after_q_duration_no_4 = ifelse(Q_Duration == "Q_Duration_4", "no4", "no1_3")) %>% 
+    group_by(before_after_q_duration_no_4, result) %>%
+    summarise(n = n(), .groups = "keep") %>% 
+    group_by(before_after_q_duration_no_4) %>% 
+    mutate(p = n/sum(n)) %>% 
+    filter(result == "I_too_long_after_Q" | result == "I_correct_after_Q")
   
 
 # Analysis of timeliness --------------------------------------------------
@@ -316,8 +325,32 @@ get_numerical_results <- function(df, demographiedaten, externalinput){
     summarise(quant = quantile(Q_timeliness)) %>% 
     pull()
     
+  resultslist$q_timeliness_mean <- df %>%
+    filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
+    filter(Q_Duration == "Q_Duration_1" | Q_Duration == "Q_Duration_3") %>% 
+    mutate(Q_timeliness = 14 - dauer - 1) %>% 
+    filter(Q_timeliness >= 0) %>% 
+    group_by(Q_Duration) %>% 
+    summarise(mean = mean(Q_timeliness))
   
-
+  resultslist$q_timeliness_median_D1 <- df %>%
+    filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
+    filter(Q_Duration == "Q_Duration_1") %>% 
+    mutate(Q_timeliness = 14 - dauer - 1) %>% 
+    filter(Q_timeliness >= 0) %>% 
+    summarise(quant = quantile(Q_timeliness)) %>% 
+    pull()
+  
+  
+  
+  resultslist$q_timeliness_median_D3 <- df %>%
+    filter(DatensatzKategorie == "Kontakt-COVID-19") %>%
+    filter(Q_Duration == "Q_Duration_3") %>% 
+    mutate(Q_timeliness = 14 - dauer - 1) %>% 
+    filter(Q_timeliness >= 0) %>% 
+    summarise(quant = quantile(Q_timeliness)) %>% 
+    pull()
+  
 
 # Generate table 2 -----------------------------------------------------------------
 
